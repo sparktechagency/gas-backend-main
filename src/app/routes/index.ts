@@ -17,6 +17,7 @@ import { fuelInfoRoutes } from '../modules/fuelInfo/fuelInfo.route';
 import { deliveryAndTipRoutes } from '../modules/deliveryAndTip/deliveryAndTip.route';
 import { driverErningRoutes } from '../modules/driverErning/driverErning.route';
 import { pushNotificationRoutes } from '../modules/pushNotification/pushNotification.route';
+import { couponRoutes } from '../modules/coupon/coupon.route';
 
 const router = Router();
 const moduleRoutes = [
@@ -95,6 +96,10 @@ const moduleRoutes = [
   {
     path: '/pushNotifications',
     route: pushNotificationRoutes,
+  },
+  {
+    path: '/cupons',
+    route: couponRoutes,
   },
 ];
 moduleRoutes.forEach(route => router.use(route.path, route.route));

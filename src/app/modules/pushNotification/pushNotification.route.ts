@@ -4,10 +4,7 @@ import { pushNotificationController } from './pushNotification.controller';
 
 const router = Router();
 
-router.post(
-  '/create-pushNotification',
-  pushNotificationController.createPushNotification,
-);
+router.post('/create', pushNotificationController.createPushNotification);
 router.patch('/update/:id', pushNotificationController.updatePushNotification);
 router.delete('/:id', pushNotificationController.deletePushNotification);
 router.get('/:id', pushNotificationController.getPushNotificationById);
