@@ -12,7 +12,15 @@ const createlocation = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
-const getAlllocation = catchAsync(async (req: Request, res: Response) => {});
+const getAlllocation = catchAsync(async (req: Request, res: Response) => {
+  const result = await locationService.getAlllocation(req.query);
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: 'Orders retrieved successfully',
+    data: result,
+  });
+});
 const getlocationById = catchAsync(async (req: Request, res: Response) => {});
 const updatelocation = catchAsync(async (req: Request, res: Response) => {});
 const deletelocation = catchAsync(async (req: Request, res: Response) => {});

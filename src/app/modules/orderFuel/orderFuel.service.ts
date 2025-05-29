@@ -85,6 +85,7 @@ const MILES_TO_METERS = 1609.34;
 // Get All
 
 const createorderFuel = async (payload: IOrderFuel) => {
+  // console.log('payload', payload);
   // 1. If this is a fuel order, look up the fuel price and calculate
   let price = 0;
   if (payload.orderType !== 'Battery') {
@@ -97,7 +98,7 @@ const createorderFuel = async (payload: IOrderFuel) => {
         `Fuel type "${payload.fuelType}" is not recognized`,
       );
     }
-    console.log('fuelInfo', fuelInfo);
+    // console.log('fuelInfo', fuelInfo);
     price = payload.amount * fuelInfo.fuelPrice;
   }
   // 2. Check if within 10 miles of any registered service point
