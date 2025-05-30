@@ -18,6 +18,8 @@ import { deliveryAndTipRoutes } from '../modules/deliveryAndTip/deliveryAndTip.r
 import { driverErningRoutes } from '../modules/driverErning/driverErning.route';
 import { pushNotificationRoutes } from '../modules/pushNotification/pushNotification.route';
 import { couponRoutes } from '../modules/coupon/coupon.route';
+import { packagesRoutes } from '../modules/packages/packages.route';
+import { subscriptionRoutes } from '../modules/subscription/subscription.route';
 
 const router = Router();
 const moduleRoutes = [
@@ -100,6 +102,14 @@ const moduleRoutes = [
   {
     path: '/cupons',
     route: couponRoutes,
+  },
+  {
+    path: '/packages',
+    route: packagesRoutes,
+  },
+  {
+    path: '/subscription',
+    route: subscriptionRoutes,
   },
 ];
 moduleRoutes.forEach(route => router.use(route.path, route.route));

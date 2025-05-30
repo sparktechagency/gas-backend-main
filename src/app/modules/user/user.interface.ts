@@ -30,6 +30,10 @@ export interface IUser {
     expiresAt: Date;
     status: boolean;
   };
+  // 👇 Subscription fields
+  freeDeliverylimit: number;
+  coverVehiclelimit: number;
+  durationDay: number;
 }
 
 export interface UserModel extends Model<IUser> {

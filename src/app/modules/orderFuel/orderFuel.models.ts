@@ -15,21 +15,21 @@ const orderFuelSchema: Schema<IOrderFuel> = new Schema(
     },
     vehicleId: {
       type: Schema.Types.ObjectId,
-      required: true,
+      // required: true,
       ref: 'Vehicle', // Replace with actual model name
     },
     userId: {
       type: Schema.Types.ObjectId,
-      required: true,
+      // required: true,
       ref: 'User', // Replace with actual user model if needed
     },
     amount: {
       type: Number,
-      required: true,
+      // required: true,
     },
     deliveryFee: {
       type: Number,
-      required: true,
+      // required: true,
     },
     price: {
       type: Number,
@@ -44,7 +44,7 @@ const orderFuelSchema: Schema<IOrderFuel> = new Schema(
     },
     tip: {
       type: Number,
-      required: true,
+      // required: true,
     },
     orderType: {
       type: String,
@@ -84,7 +84,7 @@ const orderFuelSchema: Schema<IOrderFuel> = new Schema(
     },
     zipCode: {
       type: String,
-      required: true,
+      // required: true,
     },
     servicesFee: {
       type: Number,

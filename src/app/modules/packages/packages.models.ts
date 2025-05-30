@@ -5,16 +5,9 @@ import { durationType } from './packages.constants';
 const PackageSchema = new Schema<IPackage>(
   {
     title: { type: String, required: true },
-    shortTitle: { type: String },
     shortDescription: { type: String, required: true },
     monthlyPrice: { type: Number, required: true, min: 0 },
     yearlyPrice: { type: Number, required: true, min: 0 },
-    // popularity: { type: Number, default: 0 },
-    //   codeGenetarelimit: { type: Number, default: 0, required: true },
-    //   // durationType: {
-    //   //   type: String,
-    //   //   enum: Object.values(durationType), // Restrict to "monthly" or "yearly"
-    //   // },
     isDeleted: { type: Boolean, default: false },
     freeDeliverylimit: { type: Number, default: 0, required: true },
     coverVehiclelimit: { type: Number, default: 0, required: true },

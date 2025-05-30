@@ -175,6 +175,31 @@ const deletePayments = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const Subscriptioncheckout = catchAsync(async (req: Request, res: Response) => {
+  console.log('req.body', req.body);
+  req.body.user = req.user.userId;
+  const result = await paymentsService.SubscriptionCheckout(req.body);
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    data: result,
+    message: 'payment link get successful',
+  });
+});
+
+const subscriptionConfirmPayment = catchAsync(
+  async (req: Request, res: Response) => {
+    console.log('req.query', req?.query);
+    const results = await paymentsService.SubscriptionConfirmPayment(
+      req?.query,
+    );
+    console.log('results', results);
+    res.redirect(
+      `${config.success_url}?subscriptionId=${results?.subscription}&paymentId=${results?._id}`,
+    );
+  },
+);
+
 export const paymentsController = {
   getAllPayments,
   getPaymentsById,
@@ -187,4 +212,6 @@ export const paymentsController = {
   getPaymentsByUserId,
   getPaymentsByUserIdWithParams,
   // generateInvoice,
+  Subscriptioncheckout,
+  subscriptionConfirmPayment,
 };

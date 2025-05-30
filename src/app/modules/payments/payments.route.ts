@@ -5,6 +5,16 @@ import auth from '../../middleware/auth';
 
 const router = Router();
 
+router.post(
+  '/subscription/checkout',
+  auth(USER_ROLE.user, USER_ROLE.driver),
+  paymentsController.Subscriptioncheckout,
+);
+router.get(
+  '/subscription/confirm-payment',
+  paymentsController.subscriptionConfirmPayment,
+);
+
 router.post('/checkout', auth(USER_ROLE.user), paymentsController.checkout);
 router.get('/confirm-payment', paymentsController.confirmPayment);
 

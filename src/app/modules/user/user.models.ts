@@ -72,6 +72,10 @@ const userSchema: Schema<IUser> = new Schema(
     passwordChangedAt: {
       type: Date,
     },
+    // Subscription
+    freeDeliverylimit: { type: Number, default: 0, required: true },
+    coverVehiclelimit: { type: Number, default: 0, required: true },
+    durationDay: { type: Number, default: 0, required: true },
     isDeleted: {
       type: Boolean,
       default: false,

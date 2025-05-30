@@ -1297,6 +1297,194 @@ const deletePayments = async (id: string) => {
 //   return result;
 // };
 
+const SubscriptionCheckout = async (payload: IPayment) => {
+  const tranId = generateRandomString(10);
+  let paymentData: IPayment;
+  const subscription: ISubscriptions | null = await Subscription.findById(
+    payload?.subscription,
+  ).populate('package');
+
+  if (!subscription) {
+    throw new AppError(httpStatus.NOT_FOUND, 'Subscription Not Found!');
+  }
+
+  // Check for existing unpaid payment for the subscription
+  const isExistPayment: IPayment | null = await Payment.findOne({
+    subscription: payload?.subscription,
+    isPaid: false,
+    user: payload?.user,
+  });
+
+  const user = await User.findById(payload?.user);
+  let amount = 0;
+  amount = subscription?.amount;
+  // if (subscription?.durationType === 'monthly') {
+  //   amount = subscription?.package?.monthlyPrice || 0;
+  // } else if (subscription?.durationType === 'yearly') {
+  //   amount = subscription?.package?.yearlyPrice || 0;
+  // }
+
+  if (isExistPayment) {
+    const payment = await Payment.findByIdAndUpdate(
+      isExistPayment?._id,
+      { tranId },
+      { new: true },
+    );
+
+    paymentData = payment as IPayment;
+    paymentData.amount = amount;
+  } else {
+    payload.tranId = tranId;
+    payload.amount = amount;
+    const createdPayment = await Payment.create(payload);
+    if (!createdPayment) {
+      throw new AppError(
+        httpStatus.INTERNAL_SERVER_ERROR,
+        'Failed to create payment',
+      );
+    }
+    paymentData = createdPayment;
+  }
+
+  const checkoutSession = await createCheckoutSession({
+    product: {
+      amount: paymentData?.amount,
+      //@ts-ignore
+      name: subscription?.package?.title,
+      quantity: 1,
+    },
+    //@ts-ignore
+    paymentId: paymentData?._id,
+  });
+
+  return checkoutSession?.url;
+};
+
+const SubscriptionConfirmPayment = async (query: Record<string, any>) => {
+  const { sessionId, paymentId } = query;
+  const session = await startSession();
+  const PaymentSession = await stripe.checkout.sessions.retrieve(sessionId);
+  const paymentIntentId = PaymentSession.payment_intent as string;
+
+  if (PaymentSession.status !== 'complete') {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      'Payment session is not completed',
+    );
+  }
+
+  try {
+    session.startTransaction();
+
+    const payment = await Payment.findByIdAndUpdate(
+      paymentId,
+      { isPaid: true, paymentIntentId: paymentIntentId },
+      { new: true, session },
+    ).populate('user');
+
+    if (!payment) {
+      throw new AppError(httpStatus.NOT_FOUND, 'Payment Not Found!');
+    }
+
+    const oldSubscription = await Subscription.findOneAndUpdate(
+      {
+        user: payment?.user,
+        isPaid: true,
+        isExpired: false,
+      },
+      {
+        isExpired: true,
+      },
+      { upsert: false, session },
+    );
+
+    const subscription: ISubscriptions | null = await Subscription.findById(
+      payment?.subscription,
+    )
+      .populate('package')
+      .session(session);
+
+    let expiredAt = moment();
+
+    if (
+      oldSubscription?.expiredAt &&
+      moment(oldSubscription.expiredAt).isAfter(moment())
+    ) {
+      const remainingTime = moment(oldSubscription.expiredAt).diff(moment());
+      expiredAt = moment().add(remainingTime, 'milliseconds');
+    }
+
+    if (subscription?.durationType) {
+      const durationDay =
+        subscription.durationType === 'monthly'
+          ? 30
+          : subscription.durationType === 'yearly'
+            ? 365
+            : 0;
+      expiredAt = expiredAt.add(durationDay, 'days');
+    }
+
+    await Subscription.findByIdAndUpdate(
+      payment?.subscription,
+      {
+        isPaid: true,
+        trnId: payment?.tranId,
+        expiredAt: expiredAt.toDate(),
+      },
+      { session },
+    ).populate('package');
+
+    const user = await User.findById(payment?.user).session(session);
+
+    const packageDetails = subscription?.package as IPackage;
+    const newUser: any = {};
+    if (packageDetails) {
+      newUser['freeDeliverylimit'] =
+        (user?.freeDeliverylimit || 0) +
+        (packageDetails.freeDeliverylimit || 0);
+      newUser['coverVehiclelimit'] =
+        (user?.coverVehiclelimit || 0) +
+        (packageDetails.coverVehiclelimit || 0);
+
+      let additionalDays = 0;
+      if (subscription?.durationType === 'monthly') {
+        additionalDays = 30;
+      } else if (subscription?.durationType === 'yearly') {
+        additionalDays = 365;
+      }
+
+      newUser['durationDay'] = (user?.durationDay || 0) + additionalDays;
+
+      await User.findByIdAndUpdate(user?._id, newUser, {
+        timestamps: false,
+        session,
+      });
+    }
+
+    await Package.findByIdAndUpdate(
+      packageDetails?._id,
+      { $inc: { popularity: 1 } },
+      { upsert: false, new: true, session },
+    );
+    await session.commitTransaction();
+    return payment;
+  } catch (error: any) {
+    console.error('Error processing payment:', error);
+    await session.abortTransaction();
+
+    if (paymentIntentId) {
+      try {
+        await stripe.refunds.create({ payment_intent: paymentIntentId });
+      } catch (refundError: any) {
+        console.error('Error processing refund:', refundError.message);
+      }
+    }
+
+    throw new AppError(httpStatus.BAD_GATEWAY, error.message);
+  } finally {
+    session.endSession();
+  }
+};
 export const paymentsService = {
   // createPayments,
   getAllPayments,
@@ -1309,4 +1497,6 @@ export const paymentsService = {
   getEarnings,
   getPaymentsByUserId,
   // generateInvoice,
+  SubscriptionConfirmPayment,
+  SubscriptionCheckout,
 };

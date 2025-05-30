@@ -4,14 +4,13 @@ import { IPackage } from '../packages/packages.interface';
 export interface ISubscriptions {
   user: ObjectId;
   package: ObjectId | IPackage;
-  durationType: "monthly" | "yearly"
+  durationType: 'monthly' | 'yearly';
   isPaid: boolean;
   trnId: string;
   amount: number;
   expiredAt: Date;
   isExpired: boolean;
   isDeleted: boolean;
-  
 }
 
 export type ISubscriptionsModel = Model<

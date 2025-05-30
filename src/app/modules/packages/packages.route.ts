@@ -9,8 +9,8 @@ const router = Router();
 
 router.post(
   '/',
-  auth(USER_ROLE.admin),
-  validateRequest(packageValidator.createPackageValidator),
+  auth(USER_ROLE.admin, USER_ROLE.user, USER_ROLE.driver),
+  // validateRequest(packageValidator.createPackageValidator),
   packagesController.createPackages,
 );
 
