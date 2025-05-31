@@ -20,9 +20,15 @@ const confirmPayment = catchAsync(async (req: Request, res: Response) => {
   console.log('req.query', req?.query);
   const results = await paymentsService.confirmPayment(req?.query);
   console.log('results', results);
-  res.redirect(
-    `${config.success_url}?subscriptionId=${results?.subscription}&paymentId=${results?._id}`,
-  );
+  // res.redirect(
+  //   `${config.success_url}?subscriptionId=${results?.subscription}&paymentId=${results?._id}`,
+  // );
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    data: results,
+    message: 'payment link get successful',
+  });
 });
 
 const dashboardData = catchAsync(async (req: Request, res: Response) => {
