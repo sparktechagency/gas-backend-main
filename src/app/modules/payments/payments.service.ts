@@ -461,7 +461,6 @@ const confirmPayment = async (query: Record<string, any>) => {
 
     // Update orderFuel status
     order.isPaid = true;
-    order.orderStatus = 'Pending';
     order.paymentId = payment._id;
     order.finalAmountOfPayment = payment.amount;
     await order.save();
