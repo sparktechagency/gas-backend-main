@@ -146,6 +146,7 @@ const createorderFuel = async (payload: IOrderFuel) => {
     serviceName: 'Battery',
   });
   const servicesFee = service?.price ?? 0;
+  console.log('servicesFee', servicesFee);
   const finalAmountOfPayment =
     payload.orderType === 'Battery'
       ? servicesFee + deliveryFee + tip
