@@ -40,7 +40,10 @@ const getreviewById = async (id: string) => {
 };
 
 const getreviewByDriverId = async (id: string) => {
-  const result = await Review.find({ driverId: id }).populate(['userId']);
+  const result = await Review.find({ driverId: id }).populate([
+    'driverId',
+    'userId',
+  ]);
   if (!result) {
     throw new AppError(httpStatus.NOT_FOUND, 'Review not found');
   }
