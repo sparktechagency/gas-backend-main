@@ -6,7 +6,7 @@ export interface CouponDocument extends ICoupon, Document {}
 
 const couponSchema = new Schema<CouponDocument>(
   {
-    applicableOn: { type: String, required: true, trim: true },
+    // applicableOn: { type: String, required: true, trim: true },
     couponName: { type: String, required: true, trim: true },
     expiryDate: { type: String, required: true }, // store as ISO string
     couponCode: {
@@ -17,6 +17,11 @@ const couponSchema = new Schema<CouponDocument>(
       trim: true,
     },
     discount: { type: Number, required: true, min: 0 },
+    service: {
+      type: Schema.Types.Mixed,
+      required: true,
+      ref: 'Services',
+    },
   },
   { timestamps: true },
 );

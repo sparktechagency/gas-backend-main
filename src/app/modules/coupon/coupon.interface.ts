@@ -4,4 +4,5 @@ export interface ICoupon {
   expiryDate: string;
   couponCode: string;
   discount: number;
+  service: object;
 }
