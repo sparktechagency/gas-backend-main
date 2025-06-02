@@ -2,6 +2,7 @@
 import { Request, Response } from 'express';
 import catchAsync from '../../utils/catchAsync';
 import { fuelInfoService } from './fuelInfo.service';
+import sendResponse from '../../utils/sendResponse';
 
 const createfuelInfo = catchAsync(async (req: Request, res: Response) => {
   const data = await fuelInfoService.createfuelInfo(req.body);
@@ -35,12 +36,12 @@ const updatefuelInfo = catchAsync(async (req: Request, res: Response) => {
 
 const deletefuelInfo = catchAsync(async (req: Request, res: Response) => {
   const data = await fuelInfoService.deletefuelInfo(req.params.id);
-  if (!data) {
-    return res
-      .status(404)
-      .json({ status: 'fail', message: 'FuelInfo not found' });
-  }
-  res.status(204).send();
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: 'fuelInfoService deleted successfully',
+    data: data,
+  });
 });
 
 export const fuelInfoController = {

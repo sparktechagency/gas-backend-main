@@ -20,6 +20,9 @@ import { pushNotificationRoutes } from '../modules/pushNotification/pushNotifica
 import { couponRoutes } from '../modules/coupon/coupon.route';
 import { packagesRoutes } from '../modules/packages/packages.route';
 import { subscriptionRoutes } from '../modules/subscription/subscription.route';
+import { termsRoutes } from '../modules/terms/terms.route';
+import { privacyRoutes } from '../modules/privacy/privacy.route';
+import { settingsRoutes } from '../modules/settings/settings.routes';
 
 const router = Router();
 const moduleRoutes = [
@@ -110,6 +113,14 @@ const moduleRoutes = [
   {
     path: '/subscription',
     route: subscriptionRoutes,
+  },
+  {
+    path: '/terms',
+    route: termsRoutes,
+  },
+  {
+    path: '/settings',
+    route: settingsRoutes,
   },
 ];
 moduleRoutes.forEach(route => router.use(route.path, route.route));

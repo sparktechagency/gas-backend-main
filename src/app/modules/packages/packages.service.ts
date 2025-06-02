@@ -5,14 +5,14 @@ import Package from './packages.models';
 import QueryBuilder from '../../builder/QueryBuilder';
 
 const createPackages = async (payload: IPackage) => {
-  const packageCount = await Package.countDocuments();
+  // const packageCount = await Package.countDocuments();
 
-  if (packageCount >= 2) {
-    throw new AppError(
-      httpStatus.BAD_REQUEST,
-      'Cannot create more than 2 packages.',
-    );
-  }
+  // if (packageCount >= 2) {
+  //   throw new AppError(
+  //     httpStatus.BAD_REQUEST,
+  //     'Cannot create more than 2 packages.',
+  //   );
+  // }
 
   const packages = await Package.create(payload);
 
