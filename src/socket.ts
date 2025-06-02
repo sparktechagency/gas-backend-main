@@ -122,6 +122,34 @@ const initializeSocketIO = (server: HttpServer) => {
         }
       });
 
+      // -----------------------------live traking---------------------------------
+
+      //----------------------user id set in online array-------------------------//
+      onlineUser.add(user?._id?.toString());
+
+      socket.on('check', (data, callback) => {
+        callback({ success: true });
+      });
+
+      socket.on(
+        'getLocation',
+        async (
+          messageData: { latitude: number; longitude: number },
+          callback: any,
+        ) => {
+          try {
+            const data = messageData;
+            // console.log('locationd--', data);
+            return socket.broadcast.emit(
+              'serverToSendLocation::' + user.userId,
+              data,
+            );
+          } catch (error: any) {
+            console.log('🚀 ~ error:', error);
+          }
+        },
+      );
+
       //----------------------chat list------------------------//
       socket.on('my-chat-list', async (data, callback) => {
         try {
