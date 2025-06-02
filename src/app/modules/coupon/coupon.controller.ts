@@ -2,6 +2,7 @@
 import { Request, Response } from 'express';
 import catchAsync from '../../utils/catchAsync';
 import { couponService } from './coupon.service';
+import sendResponse from '../../utils/sendResponse';
 
 const createCoupon = catchAsync(async (req: Request, res: Response) => {
   const result = await couponService.createCoupon(req.body);
@@ -35,12 +36,12 @@ const updateCoupon = catchAsync(async (req: Request, res: Response) => {
 
 const deleteCoupon = catchAsync(async (req: Request, res: Response) => {
   const result = await couponService.deleteCoupon(req.params.id);
-  if (!result) {
-    return res
-      .status(404)
-      .json({ success: false, message: 'Coupon not found' });
-  }
-  res.status(204).send();
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: 'coupon deleted successfully',
+    data: result,
+  });
 });
 
 export const couponController = {

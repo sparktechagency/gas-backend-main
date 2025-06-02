@@ -8,7 +8,7 @@ const createCoupon = async (payload: ICoupon): Promise<CouponDocument> => {
 };
 
 const getAllCoupons = async (): Promise<CouponDocument[]> => {
-  return CouponModel.find().sort({ createdAt: -1 });
+  return CouponModel.find().populate('service').sort({ createdAt: -1 });
 };
 
 const getCouponById = async (id: string): Promise<CouponDocument | null> => {

@@ -2,6 +2,7 @@
 import { Request, Response } from 'express';
 import catchAsync from '../../utils/catchAsync';
 import { deliveryAndTipService } from './deliveryAndTip.service';
+import sendResponse from '../../utils/sendResponse';
 
 const createDeliveryAndTip = catchAsync(async (req: Request, res: Response) => {
   const data = await deliveryAndTipService.createDeliveryAndTip(req.body);
@@ -40,9 +41,12 @@ const updateDeliveryAndTip = catchAsync(async (req: Request, res: Response) => {
 
 const deleteDeliveryAndTip = catchAsync(async (req: Request, res: Response) => {
   const data = await deliveryAndTipService.deleteDeliveryAndTip(req.params.id);
-  if (!data)
-    return res.status(404).json({ success: false, message: 'Not found' });
-  res.status(204).send();
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: 'deleteDeliveryAndTip deleted successfully',
+    data: data,
+  });
 });
 
 export const deliveryAndTipController = {
