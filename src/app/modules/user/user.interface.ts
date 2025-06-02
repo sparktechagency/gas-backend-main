@@ -25,6 +25,7 @@ export interface IUser {
   needsPasswordChange: boolean;
   passwordChangedAt?: Date;
   isDeleted: boolean;
+  experience: number;
   verification: {
     otp: string | number;
     expiresAt: Date;
