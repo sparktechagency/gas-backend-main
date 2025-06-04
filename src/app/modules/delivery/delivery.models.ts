@@ -21,6 +21,7 @@ const deliverySchema: Schema<Idelivery> = new Schema(
     },
     proofImage: {
       type: String,
+      default: '',
     },
   },
   {
