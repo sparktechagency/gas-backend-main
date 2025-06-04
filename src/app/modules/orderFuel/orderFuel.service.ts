@@ -170,7 +170,7 @@ const createorderFuel = async (payload: IOrderFuel) => {
 
 const getAllorderFuel = async (query: Record<string, any>) => {
   const queryBuilder = new QueryBuilder(
-    orderFuel.find({ isPaid: true }).populate(['userId']),
+    orderFuel.find({ isPaid: true }).populate(['userId', 'driverId']),
     query,
   )
     .search(['location', 'fuelType'])
