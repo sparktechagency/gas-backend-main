@@ -1122,7 +1122,7 @@ const dashboardData = async (query: Record<string, any>) => {
     totalMember,
     totalAdministrator,
     // transitionData,
-    // totalIncome: totalEarnings,
+    totalIncome: totalEarnings,
 
     // toDayIncome: todayEarnings,
 
