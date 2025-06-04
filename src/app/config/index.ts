@@ -20,6 +20,7 @@ export default {
   ip: process.env.IP,
   success_url: process.env.PAYMENT_SUCCESS_URL,
   webhook_url: process.env.PAYMENT_WEBHOOK_URL,
+  subscription_url: process.env.PAYMENT_SUBSCRIPTION_WEBHOOK_URL,
   cancel_url: process.env.PAYMENT_CANCEL_URL,
   database_url: process.env.DATABASE_URL,
   server_url: process.env.SERVER_URL,
