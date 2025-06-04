@@ -22,4 +22,5 @@ export interface IOrderFuel {
   zipCode: string;
   servicesFee: number;
   driverId: ObjectId;
+  proofImage: string;
 }

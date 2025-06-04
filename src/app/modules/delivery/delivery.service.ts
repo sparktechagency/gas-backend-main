@@ -172,7 +172,9 @@ const updatedelivery = async (id: string, payload: Partial<Idelivery>) => {
         `Order ${existingDelivery.orderId} not found`,
       );
     }
-
+    if (payload.proofImage) {
+      updatedOrder.proofImage = payload.proofImage;
+    }
     // 3) Now update the Delivery document itself
     const deliveryRecord = await Delivery.findByIdAndUpdate(id, payload, {
       new: true,

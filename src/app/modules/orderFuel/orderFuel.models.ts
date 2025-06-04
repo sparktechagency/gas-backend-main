@@ -93,6 +93,10 @@ const orderFuelSchema: Schema<IOrderFuel> = new Schema(
       type: Schema.Types.ObjectId,
       ref: 'User',
     },
+    proofImage: {
+      type: String,
+      default: '',
+    },
   },
   {
     timestamps: true,
