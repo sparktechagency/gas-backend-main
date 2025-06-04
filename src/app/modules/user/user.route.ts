@@ -22,7 +22,7 @@ router.post(
 
 router.patch(
   '/update/:id',
-  auth(USER_ROLE.admin, USER_ROLE.sub_admin, USER_ROLE.user),
+  auth(USER_ROLE.admin, USER_ROLE.driver, USER_ROLE.user),
   upload.single('image'),
   parseData(),
   userController.updateUser,
@@ -38,23 +38,27 @@ router.patch(
 
 router.delete(
   '/delete-my-account',
-  auth(USER_ROLE.admin, USER_ROLE.sub_admin, USER_ROLE.user),
+  auth(USER_ROLE.admin, USER_ROLE.driver, USER_ROLE.user),
   userController.deleteMYAccount,
 );
 router.delete(
   '/:id',
-  auth(USER_ROLE.admin, USER_ROLE.sub_admin, USER_ROLE.super_admin),
+  auth(USER_ROLE.admin, USER_ROLE.driver, USER_ROLE.user),
   userController.deleteUser,
 );
 
 router.get(
   '/my-profile',
-  auth(USER_ROLE.user, USER_ROLE.driver),
+  auth(USER_ROLE.admin, USER_ROLE.driver, USER_ROLE.user),
   userController.getMyProfile,
 );
 
 router.get('/:id', userController.getUserById);
 
-router.get('/', auth(USER_ROLE.admin), userController.getAllUser);
+router.get(
+  '/',
+  auth(USER_ROLE.admin, USER_ROLE.driver, USER_ROLE.user),
+  userController.getAllUser,
+);
 
 export const userRoutes = router;
