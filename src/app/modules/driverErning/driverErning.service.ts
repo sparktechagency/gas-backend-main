@@ -5,9 +5,7 @@ import QueryBuilder from '../../builder/QueryBuilder';
 import { IDriverErning } from './driverErning.interface';
 import { DriverEarning } from './driverErning.models';
 import mongoose from 'mongoose';
-
-
-
+import { User } from '../user/user.models';
 
 type Filter = 'week' | 'month' | 'all';
 
@@ -28,9 +26,6 @@ function calcStartDate(filter: Filter): Date | undefined {
   }
   return undefined;
 }
-
-
-// Create a new driver earning record
 const createDriverEarning = async (payload: IDriverErning) => {
   const result = await DriverEarning.create(payload);
   if (!result) {
@@ -39,8 +34,39 @@ const createDriverEarning = async (payload: IDriverErning) => {
       'Failed to create driver earning record',
     );
   }
+
+  // Update user's totalEarning
+  await User.findByIdAndUpdate(payload.userId, {
+    $inc: { totalEarning: payload.totalEarnings },
+  });
+
   return result;
 };
+
+// const createDriverEarning = async (payload: IDriverErning) => {
+//   const result = await DriverEarning.create(payload);
+//   if (!result) {
+//     throw new AppError(
+//       httpStatus.BAD_REQUEST,
+//       'Failed to create driver earning record',
+//     );
+//   }
+
+//   const userId = result.userId;
+
+//   // Recalculate total earnings of the user
+//   const [aggregation] = await DriverEarning.aggregate([
+//     { $match: { userId } },
+//     { $group: { _id: null, total: { $sum: '$totalEarnings' } } },
+//   ]);
+
+//   const newTotal = aggregation?.total || 0;
+
+//   // Update user's totalEarning field
+//   await User.findByIdAndUpdate(userId, { totalEarning: newTotal });
+
+//   return result;
+// };
 
 // Get all driver earnings with query options
 const getAllDriverEarnings = async (query: Record<string, any>) => {
@@ -99,7 +125,6 @@ const deleteDriverEarning = async (id: string) => {
   return result;
 };
 
-
 const getDriverEarningsSummary = async (
   userId: string,
   filter: Filter = 'all',
@@ -151,6 +176,115 @@ const getAllDriverEarningsSummary = async (filter: Filter = 'all') => {
   return DriverEarning.find(match).populate('userId');
 };
 
+// const getUserEarningSummary = async (userId: string, filter: Filter) => {
+//   if (!mongoose.Types.ObjectId.isValid(userId)) {
+//     throw new AppError(httpStatus.BAD_REQUEST, 'Invalid userId');
+//   }
+
+//   const uid = new mongoose.Types.ObjectId(userId);
+//   const startDate = calcStartDate(filter);
+
+//   // ─── Time Range for Today ───
+//   const startOfToday = new Date();
+//   startOfToday.setHours(0, 0, 0, 0);
+//   const endOfToday = new Date();
+//   endOfToday.setHours(23, 59, 59, 999);
+
+//   // ─── Today's Earnings ───
+//   const [today] = await DriverEarning.aggregate([
+//     {
+//       $match: {
+//         userId: uid,
+//         createdAt: { $gte: startOfToday, $lte: endOfToday },
+//       },
+//     },
+//     { $group: { _id: null, sum: { $sum: '$totalEarnings' } } },
+//   ]);
+
+//   // ─── Total Earnings ───
+//   const match: any = { userId: uid };
+//   if (startDate) {
+//     match.createdAt = { $gte: startDate };
+//   }
+
+//   const [total] = await DriverEarning.aggregate([
+//     { $match: match },
+//     { $group: { _id: null, sum: { $sum: '$totalEarnings' } } },
+//   ]);
+
+//   return {
+//     userId,
+//     todayEarnings: today?.sum || 0,
+//     totalEarnings: total?.sum || 0,
+//   };
+// };
+
+const getUserEarningSummary = async (userId: string, filter: Filter) => {
+  if (!mongoose.Types.ObjectId.isValid(userId)) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'Invalid userId');
+  }
+
+  const uid = new mongoose.Types.ObjectId(userId);
+  const startDate = calcStartDate(filter);
+
+  // ─── Time Range for Today ───
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
+  const endOfToday = new Date();
+  endOfToday.setHours(23, 59, 59, 999);
+
+  // ─── Today's Earnings ───
+  const [today] = await DriverEarning.aggregate([
+    {
+      $match: {
+        userId: uid,
+        createdAt: { $gte: startOfToday, $lte: endOfToday },
+      },
+    },
+    { $group: { _id: null, sum: { $sum: '$totalEarnings' } } },
+  ]);
+
+  // ─── Total Earnings from User Schema ───
+  const user = await User.findById(uid).select('totalEarning');
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, 'User not found');
+  }
+
+  return {
+    userId,
+    todayEarnings: today?.sum || 0,
+    totalEarnings: user.totalEarning || 0,
+  };
+};
+
+const getGlobalEarningsSummary = async () => {
+  // Time range for today
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
+  const endOfToday = new Date();
+  endOfToday.setHours(23, 59, 59, 999);
+
+  // ─── Today's Earnings ───
+  const [today] = await DriverEarning.aggregate([
+    {
+      $match: {
+        createdAt: { $gte: startOfToday, $lte: endOfToday },
+      },
+    },
+    { $group: { _id: null, sum: { $sum: '$totalEarnings' } } },
+  ]);
+
+  // ─── All Time Earnings ───
+  const [total] = await DriverEarning.aggregate([
+    { $group: { _id: null, sum: { $sum: '$totalEarnings' } } },
+  ]);
+
+  return {
+    todayEarnings: today?.sum || 0,
+    totalEarnings: total?.sum || 0,
+  };
+};
+
 export const driverEarningService = {
   createDriverEarning,
   getAllDriverEarnings,
@@ -159,4 +293,6 @@ export const driverEarningService = {
   deleteDriverEarning,
   getDriverEarningsSummary,
   getAllDriverEarningsSummary,
+  getUserEarningSummary,
+  getGlobalEarningsSummary,
 };

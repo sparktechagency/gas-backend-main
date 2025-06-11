@@ -62,6 +62,10 @@ const userSchema: Schema<IUser> = new Schema(
       enum: Role,
       default: USER_ROLE.user,
     },
+    totalEarning: {
+      type: Number,
+      default: 0,
+    },
     experience: {
       type: Number,
       default: 0,

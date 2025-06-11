@@ -23,6 +23,7 @@ import { subscriptionRoutes } from '../modules/subscription/subscription.route';
 import { termsRoutes } from '../modules/terms/terms.route';
 import { privacyRoutes } from '../modules/privacy/privacy.route';
 import { settingsRoutes } from '../modules/settings/settings.routes';
+import { withdrawRoutes } from '../modules/withdraw/withdraw.route';
 
 const router = Router();
 const moduleRoutes = [
@@ -121,6 +122,10 @@ const moduleRoutes = [
   {
     path: '/settings',
     route: settingsRoutes,
+  },
+  {
+    path: '/withdrawal',
+    route: withdrawRoutes,
   },
 ];
 moduleRoutes.forEach(route => router.use(route.path, route.route));

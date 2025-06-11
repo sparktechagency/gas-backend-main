@@ -208,6 +208,7 @@ const updatedelivery = async (id: string, payload: Partial<Idelivery>) => {
       tipEarn: tipAmount,
       totalEarnings: totalEarned,
       delevaryId: deliveryRecord._id,
+      perUserTotalEarning: totalEarned,
     };
 
     // 7) Create the new DriverEarning document

@@ -35,6 +35,7 @@ export interface IUser {
   freeDeliverylimit: number;
   coverVehiclelimit: number;
   durationDay: number;
+  totalEarning: number;
 }
 
 export interface UserModel extends Model<IUser> {

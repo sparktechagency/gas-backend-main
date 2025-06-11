@@ -29,6 +29,11 @@ const driverEarningSchema = new Schema<IDriverErning>(
       ref: 'Delivery',
       required: true,
     },
+    perUserTotalEarning: {
+      type: Number,
+      required: true,
+      default: 0,
+    },
   },
   {
     timestamps: true,

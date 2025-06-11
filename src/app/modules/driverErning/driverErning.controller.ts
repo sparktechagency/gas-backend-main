@@ -66,7 +66,7 @@ const deleteDriverEarning = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getEarningsSummary = catchAsync(async (req: Request, res: Response) => {
-  const { userId } = req.params;
+  const userId = req.user?.userId;
   const filter = (req.query.filter as 'week' | 'month' | 'all') || 'all';
 
   const data = userId
@@ -81,6 +81,36 @@ const getEarningsSummary = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getUserEarningSummary = catchAsync(
+  async (req: Request, res: Response) => {
+    const userId = req.user?.userId;
+    const filter = (req.query.filter as 'week' | 'month' | 'all') || 'all';
+
+    const data = await driverEarningService.getUserEarningSummary(
+      userId,
+      filter,
+    );
+    sendResponse(res, {
+      statusCode: 200,
+      success: true,
+      message: 'User earning summary fetched successfully',
+      data,
+    });
+  },
+);
+const getGlobalEarningsSummary = catchAsync(
+  async (_req: Request, res: Response) => {
+    const data = await driverEarningService.getGlobalEarningsSummary();
+
+    sendResponse(res, {
+      statusCode: 200,
+      success: true,
+      message: 'Global earnings summary fetched successfully',
+      data,
+    });
+  },
+);
+
 export const driverEarningController = {
   createDriverEarning,
   getAllDriverEarnings,
@@ -88,4 +118,6 @@ export const driverEarningController = {
   updateDriverEarning,
   deleteDriverEarning,
   getEarningsSummary,
+  getUserEarningSummary,
+  getGlobalEarningsSummary,
 };

@@ -6,4 +6,5 @@ export interface IDriverErning {
   tipEarn: number;
   totalEarnings: number;
   delevaryId: ObjectId;
+  perUserTotalEarning: number;
 }
