@@ -14,6 +14,11 @@ router.get(
   auth(USER_ROLE.driver),
   driverEarningController.getUserEarningSummary,
 );
+router.get(
+  '/driver-erning/:userId?',
+  // auth(USER_ROLE.driver),
+  driverEarningController.getUserEarningSummaryByParams,
+);
 router.get('/summary/global', driverEarningController.getGlobalEarningsSummary);
 
 router.patch('/update/:id', driverEarningController.updateDriverEarning);

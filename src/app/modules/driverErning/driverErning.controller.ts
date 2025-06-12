@@ -98,6 +98,24 @@ const getUserEarningSummary = catchAsync(
     });
   },
 );
+
+const getUserEarningSummaryByParams = catchAsync(
+  async (req: Request, res: Response) => {
+    const userId = req.params.userId;
+    const filter = (req.query.filter as 'week' | 'month' | 'all') || 'all';
+
+    const data = await driverEarningService.getUserEarningSummary(
+      userId,
+      filter,
+    );
+    sendResponse(res, {
+      statusCode: 200,
+      success: true,
+      message: 'User earning summary fetched successfully',
+      data,
+    });
+  },
+);
 const getGlobalEarningsSummary = catchAsync(
   async (_req: Request, res: Response) => {
     const data = await driverEarningService.getGlobalEarningsSummary();
@@ -120,4 +138,5 @@ export const driverEarningController = {
   getEarningsSummary,
   getUserEarningSummary,
   getGlobalEarningsSummary,
+  getUserEarningSummaryByParams,
 };

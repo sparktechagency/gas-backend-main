@@ -6,9 +6,9 @@ export interface PushNotificationDocument extends IpushNotification, Document {}
 
 const pushNotificationSchema = new Schema<PushNotificationDocument>(
   {
-    title: { type: String, required: true },
-    message: { type: String, required: true },
-    targetAudience: { type: String, required: true },
+    title: { type: String },
+    message: { type: String },
+    targetAudience: { type: String },
   },
   { timestamps: true },
 );
