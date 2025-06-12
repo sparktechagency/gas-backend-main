@@ -242,7 +242,10 @@ const getorderFuelById = async (id: string) => {
 };
 
 const getorderFuelByDriverId = async (id: string) => {
-  const result = await orderFuel.findOne({ driverId: id });
+  const result = await orderFuel.findOne({
+    driverId: id,
+    orderStatus: 'Pending',
+  });
   // .populate(['userId']);
   if (!result) {
     throw new AppError(httpStatus.NOT_FOUND, 'Order driver not found');
