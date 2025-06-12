@@ -32,6 +32,10 @@ const createUser = async (payload: IUser): Promise<IUser> => {
     throw new AppError(httpStatus.BAD_REQUEST, 'Password is required');
   }
 
+  if (payload.role === 'driver') {
+    payload.status = 'blocked';
+  }
+
   const user = await User.create(payload);
   if (!user) {
     throw new AppError(httpStatus.BAD_REQUEST, 'User creation failed');
