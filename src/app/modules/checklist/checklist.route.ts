@@ -2,11 +2,17 @@
 
 import { Router } from 'express';
 import { checklistController } from './checklist.controller';
+import auth from '../../middleware/auth';
+import { USER_ROLE } from '../user/user.constants';
 
 const router = Router();
 
 // Route to create a new checklist
-router.post('/create-checklist', checklistController.createchecklist);
+router.post(
+  '/create-checklist',
+  auth(USER_ROLE.driver),
+  checklistController.createchecklist,
+);
 
 // Route to get all checklists
 router.get('/', checklistController.getAllchecklist);
