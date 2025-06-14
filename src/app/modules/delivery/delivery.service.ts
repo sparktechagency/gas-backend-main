@@ -152,7 +152,7 @@ const updatedelivery = async (id: string, payload: Partial<Idelivery>) => {
   //  4) create a DriverEarning entry
   if (payload.status === 'delivered') {
     // 1) Find the Delivery so we can pull out its orderId, driver, etc.
-    const existingDelivery = await Delivery.findById(id);
+    const existingDelivery = await Delivery.findById({ orderId: id });
     if (!existingDelivery) {
       throw new AppError(
         httpStatus.BAD_REQUEST,
