@@ -27,7 +27,7 @@ const createdelivery = async (payload: Idelivery) => {
     orderId,
     {
       orderStatus: 'InProgress',
-      deliveryId: result._id, // corrected key name from `deleveryId` to `deliveryId`
+      deleveryId: result._id, // corrected key name from `deleveryId` to `deliveryId`
     },
     { new: true, runValidators: true },
   );
