@@ -73,7 +73,7 @@ const getorderFuelById = catchAsync(async (req: Request, res: Response) => {
 const getorderFuelByDriverId = catchAsync(
   async (req: Request, res: Response) => {
     const Id = req?.user?.userId;
-    const result = await orderFuelService.getorderFuelByDriverId(Id);
+    const result = await orderFuelService.getorderFuelByDriverId(Id, req.query);
     sendResponse(res, {
       statusCode: 200,
       success: true,

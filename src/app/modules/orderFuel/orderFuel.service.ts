@@ -241,16 +241,25 @@ const getorderFuelById = async (id: string) => {
   return result;
 };
 
-const getorderFuelByDriverId = async (id: string) => {
-  const result = await orderFuel.findOne({
-    driverId: id,
-    orderStatus: 'Pending',
-  });
-  // .populate(['userId']);
-  if (!result) {
+const getorderFuelByDriverId = async (
+  driverId: string,
+  query: Record<string, any>,
+) => {
+  const queryBuilder = new QueryBuilder(orderFuel.find({ driverId }), query)
+    .search(['location', 'fuelType']) // optional: include searchable fields
+    .filter()
+    .paginate()
+    .sort()
+    .fields();
+
+  const data = await queryBuilder.modelQuery;
+  const meta = await queryBuilder.countTotal();
+
+  if (!data || data.length === 0) {
     throw new AppError(httpStatus.NOT_FOUND, 'Order driver not found');
   }
-  return result;
+
+  return { data, meta };
 };
 
 // Update
