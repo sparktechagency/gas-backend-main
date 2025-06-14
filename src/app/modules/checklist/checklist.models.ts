@@ -1,9 +1,13 @@
-import { model, Schema } from 'mongoose';
+import { Schema, model } from 'mongoose';
 import { IChecklist } from './checklist.interface';
 const checklistSchema: Schema = new Schema<IChecklist>(
   {
     orderId: { type: String, required: true },
-    userId: { type: String },
+    userId: {
+      type: Schema.Types.ObjectId,
+      required: true,
+      ref: 'User',
+    },
     questions: [
       {
         question: { type: String, required: true },

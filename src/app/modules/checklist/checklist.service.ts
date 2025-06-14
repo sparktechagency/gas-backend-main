@@ -23,7 +23,10 @@ const createChecklist = async (
 };
 
 const getAllChecklist = async (query: Record<string, any>) => {
-  const checklistQuery = new QueryBuilder(Checklist.find(), query)
+  const checklistQuery = new QueryBuilder(
+    Checklist.find().populate('userId'),
+    query,
+  )
     .search(['orderId', 'userId'])
     .filter()
     .paginate()
