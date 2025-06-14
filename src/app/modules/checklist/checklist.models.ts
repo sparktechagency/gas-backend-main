@@ -3,7 +3,7 @@ import { IChecklist } from './checklist.interface';
 const checklistSchema: Schema = new Schema<IChecklist>(
   {
     orderId: { type: String, required: true },
-    userId: { type: String, required: true },
+    userId: { type: String },
     questions: [
       {
         question: { type: String, required: true },
