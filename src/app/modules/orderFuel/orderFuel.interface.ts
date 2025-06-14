@@ -23,4 +23,5 @@ export interface IOrderFuel {
   servicesFee: number;
   driverId: ObjectId;
   proofImage: string;
+  deleveryId: ObjectId;
 }

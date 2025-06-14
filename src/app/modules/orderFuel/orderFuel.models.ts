@@ -97,6 +97,10 @@ const orderFuelSchema: Schema<IOrderFuel> = new Schema(
       type: String,
       default: '',
     },
+    deleveryId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Delivery',
+    },
   },
   {
     timestamps: true,

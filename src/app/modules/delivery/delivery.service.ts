@@ -25,7 +25,10 @@ const createdelivery = async (payload: Idelivery) => {
   const orderId = payload.orderId;
   const updatedOrder = await orderFuel.findByIdAndUpdate(
     orderId,
-    { orderStatus: 'InProgress' },
+    {
+      orderStatus: 'InProgress',
+      deliveryId: result._id, // corrected key name from `deleveryId` to `deliveryId`
+    },
     { new: true, runValidators: true },
   );
   if (!updatedOrder) {
@@ -152,7 +155,7 @@ const updatedelivery = async (id: string, payload: Partial<Idelivery>) => {
   //  4) create a DriverEarning entry
   if (payload.status === 'delivered') {
     // 1) Find the Delivery so we can pull out its orderId, driver, etc.
-    const existingDelivery = await Delivery.findOne({ orderId: id });
+    const existingDelivery = await Delivery.findById(id);
     if (!existingDelivery) {
       throw new AppError(
         httpStatus.BAD_REQUEST,
