@@ -24,6 +24,7 @@ import { termsRoutes } from '../modules/terms/terms.route';
 import { privacyRoutes } from '../modules/privacy/privacy.route';
 import { settingsRoutes } from '../modules/settings/settings.routes';
 import { withdrawRoutes } from '../modules/withdraw/withdraw.route';
+import { checklistRoutes } from '../modules/checklist/checklist.route';
 
 const router = Router();
 const moduleRoutes = [
@@ -126,6 +127,10 @@ const moduleRoutes = [
   {
     path: '/withdrawal',
     route: withdrawRoutes,
+  },
+  {
+    path: '/checklist',
+    route: checklistRoutes,
   },
 ];
 moduleRoutes.forEach(route => router.use(route.path, route.route));

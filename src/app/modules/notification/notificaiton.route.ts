@@ -12,12 +12,7 @@ router.get(
 );
 router.patch(
   '/',
-  auth(
-    USER_ROLE.user,
-    USER_ROLE.admin,
-    USER_ROLE.sub_admin,
-    USER_ROLE.super_admin,
-  ),
+  auth(USER_ROLE.user, USER_ROLE.admin, USER_ROLE.driver),
   notificationControllers.markAsDone,
 );
 
