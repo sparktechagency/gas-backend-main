@@ -7,7 +7,7 @@ const createchecklist = catchAsync(async (req: Request, res: Response) => {
   const { orderId, questions } = req.body;
   const userId = req?.user?.id; // Assuming the user is authenticated and available via req.user
 
-  const checklist = await checklistService.createchecklist(
+  const checklist = await checklistService.createChecklist(
     orderId,
     userId,
     questions,
@@ -21,7 +21,7 @@ const createchecklist = catchAsync(async (req: Request, res: Response) => {
 
 // Get all checklists
 const getAllchecklist = catchAsync(async (req: Request, res: Response) => {
-  const checklists = await checklistService.getAllchecklist();
+  const checklists = await checklistService.getAllChecklist(req.query);
 
   res.status(200).json({
     message: 'All checklists fetched successfully',
@@ -32,7 +32,7 @@ const getAllchecklist = catchAsync(async (req: Request, res: Response) => {
 // Get checklist by orderId
 const getchecklistById = catchAsync(async (req: Request, res: Response) => {
   const { orderId } = req.params;
-  const checklist = await checklistService.getchecklistById(orderId);
+  const checklist = await checklistService.getChecklistByOrderId(orderId);
 
   if (!checklist) {
     return res.status(404).json({ message: 'Checklist not found' });
@@ -49,7 +49,7 @@ const updatechecklist = catchAsync(async (req: Request, res: Response) => {
   const { orderId } = req.params;
   const updatedData = req.body;
 
-  const updatedChecklist = await checklistService.updatechecklist(
+  const updatedChecklist = await checklistService.updateChecklist(
     orderId,
     updatedData,
   );
@@ -68,7 +68,7 @@ const updatechecklist = catchAsync(async (req: Request, res: Response) => {
 const deletechecklist = catchAsync(async (req: Request, res: Response) => {
   const { orderId } = req.params;
 
-  const deletedChecklist = await checklistService.deletechecklist(orderId);
+  const deletedChecklist = await checklistService.deleteChecklist(orderId);
 
   if (!deletedChecklist) {
     return res.status(404).json({ message: 'Checklist not found' });
