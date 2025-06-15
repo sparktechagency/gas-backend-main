@@ -5,7 +5,7 @@ import { checklistService } from './checklist.service';
 // Create checklist
 const createchecklist = catchAsync(async (req: Request, res: Response) => {
   const { orderId, questions } = req.body;
-  const userId = req?.user?.id; // Assuming the user is authenticated and available via req.user
+  const userId = req.user?.userId; // Assuming the user is authenticated and available via req.user
 
   const checklist = await checklistService.createChecklist(
     orderId,
