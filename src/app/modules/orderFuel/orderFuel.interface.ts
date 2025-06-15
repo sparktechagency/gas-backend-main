@@ -24,4 +24,5 @@ export interface IOrderFuel {
   driverId: ObjectId;
   proofImage: string;
   deleveryId: ObjectId;
+  emergency: boolean;
 }

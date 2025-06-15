@@ -101,6 +101,10 @@ const orderFuelSchema: Schema<IOrderFuel> = new Schema(
       type: Schema.Types.ObjectId,
       ref: 'Delivery',
     },
+    emergency: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,
