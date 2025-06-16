@@ -28,7 +28,7 @@ router.delete(
 
 router.get(
   '/my-chat-list',
-  auth(USER_ROLE.admin, USER_ROLE.user),
+  auth(USER_ROLE.driver, USER_ROLE.user),
   chatController.getMyChatList,
 );
 
