@@ -139,7 +139,7 @@ const moduleRoutes = [
     route: messagesRoutes,
   },
   {
-    path: '/chat',
+    path: '/chats',
     route: chatRoutes,
   },
 ];
