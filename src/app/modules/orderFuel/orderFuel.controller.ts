@@ -83,6 +83,17 @@ const getorderFuelByDriverId = catchAsync(
   },
 );
 
+const getmyorderFuel = catchAsync(async (req: Request, res: Response) => {
+  const userId = req?.user?.userId;
+  const result = await orderFuelService.getorderFuelByUserId(userId, req.query);
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: 'Order driver retrieved successfully',
+    data: result,
+  });
+});
+
 const updateorderFuel = catchAsync(async (req: Request, res: Response) => {
   const result = await orderFuelService.updateorderFuel(
     req.params.id,
@@ -116,4 +127,5 @@ export const orderFuelController = {
   getInProgressorderFuel,
   getActiveOrderFuel,
   getorderFuelByDriverId,
+  getmyorderFuel,
 };

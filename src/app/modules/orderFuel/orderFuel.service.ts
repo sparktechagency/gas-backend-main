@@ -265,6 +265,30 @@ const getorderFuelByDriverId = async (
   return { data, meta };
 };
 
+const getorderFuelByUserId = async (
+  userId: string,
+  query: Record<string, any>,
+) => {
+  const queryBuilder = new QueryBuilder(
+    orderFuel.find({ userId }).populate('userId'),
+    query,
+  )
+    .search(['location', 'fuelType'])
+    .filter()
+    .paginate()
+    .sort()
+    .fields();
+
+  const data = await queryBuilder.modelQuery;
+  const meta = await queryBuilder.countTotal();
+
+  if (!data || data.length === 0) {
+    throw new AppError(httpStatus.NOT_FOUND, 'Order driver not found');
+  }
+
+  return { data, meta };
+};
+
 // Update
 const updateorderFuel = async (id: string, payload: Partial<IOrderFuel>) => {
   const result = await orderFuel.findByIdAndUpdate(id, payload, { new: true });
@@ -293,4 +317,5 @@ export const orderFuelService = {
   getInProgressorderFuel,
   getActiveOrderFuel,
   getorderFuelByDriverId,
+  getorderFuelByUserId,
 };

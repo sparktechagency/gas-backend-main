@@ -10,9 +10,17 @@ router.post(
   auth(USER_ROLE.user),
   orderFuelController.createorderFuel,
 );
-
+router.get(
+  '/my-order',
+  auth(USER_ROLE.user),
+  orderFuelController.getmyorderFuel,
+);
 router.patch('/update/:id', orderFuelController.updateorderFuel);
-router.get('/driver',auth(USER_ROLE.driver), orderFuelController.getorderFuelByDriverId);
+router.get(
+  '/driver',
+  auth(USER_ROLE.driver),
+  orderFuelController.getorderFuelByDriverId,
+);
 router.delete('/:id', orderFuelController.deleteorderFuel);
 
 router.get('/active', orderFuelController.getActiveOrderFuel);
