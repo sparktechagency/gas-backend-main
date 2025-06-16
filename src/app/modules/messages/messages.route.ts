@@ -47,7 +47,7 @@ router.delete(
 );
 router.get(
   '/uniqueUser',
-  auth(USER_ROLE.user, USER_ROLE.admin),
+  auth(USER_ROLE.user, USER_ROLE.driver, USER_ROLE.admin),
   messagesController.getMessagesByUniqueUser,
 );
 

@@ -25,6 +25,8 @@ import { privacyRoutes } from '../modules/privacy/privacy.route';
 import { settingsRoutes } from '../modules/settings/settings.routes';
 import { withdrawRoutes } from '../modules/withdraw/withdraw.route';
 import { checklistRoutes } from '../modules/checklist/checklist.route';
+import { messagesRoutes } from '../modules/messages/messages.route';
+import { chatRoutes } from '../modules/chat/chat.route';
 
 const router = Router();
 const moduleRoutes = [
@@ -131,6 +133,14 @@ const moduleRoutes = [
   {
     path: '/checklist',
     route: checklistRoutes,
+  },
+  {
+    path: '/messages',
+    route: messagesRoutes,
+  },
+  {
+    path: '/chat',
+    route: chatRoutes,
   },
 ];
 moduleRoutes.forEach(route => router.use(route.path, route.route));
