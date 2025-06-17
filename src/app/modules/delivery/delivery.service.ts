@@ -8,6 +8,7 @@ import { orderFuel } from '../orderFuel/orderFuel.models';
 import mongoose, { Mongoose } from 'mongoose';
 import { DriverEarning } from '../driverErning/driverErning.models';
 import { IDriverErning } from '../driverErning/driverErning.interface';
+import { User } from '../user/user.models';
 
 // const createdelivery = async (payload: Idelivery) => {
 //   const result = await Delivery.create(payload);
@@ -217,6 +218,9 @@ const updatedelivery = async (id: string, payload: Partial<Idelivery>) => {
     // 7) Create the new DriverEarning document
     const earningResult = await DriverEarning.create(driverEarningPayload);
     // (optional) you could check earningResult or simply move on
+    await User.findByIdAndUpdate(driverId, {
+      $inc: { totalEarning: totalEarned },
+    });
 
     return deliveryRecord;
   }
