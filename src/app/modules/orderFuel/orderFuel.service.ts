@@ -12,7 +12,7 @@ import Subscription from '../subscription/subscription.models';
 import { Vehicle } from '../vechile/vechile.models';
 import { IPackage } from '../packages/packages.interface';
 import { User } from '../user/user.models';
-import dayjs from 'dayjs';
+// import dayjs from 'dayjs';
 
 const MILES_TO_METERS = 1609.34;
 
