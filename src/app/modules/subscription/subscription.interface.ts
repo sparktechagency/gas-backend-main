@@ -11,6 +11,8 @@ export interface ISubscriptions {
   expiredAt: Date;
   isExpired: boolean;
   isDeleted: boolean;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export type ISubscriptionsModel = Model<
