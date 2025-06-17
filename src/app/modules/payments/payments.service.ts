@@ -430,13 +430,63 @@ const checkout = async (payload: IPayment) => {
 //   //   }
 // };
 
+// const confirmPayment = async (query: Record<string, any>) => {
+//   const { sessionId, paymentId } = query;
+
+//   const session = await stripe.checkout.sessions.retrieve(sessionId);
+//   const paymentIntentId = session.payment_intent as string;
+
+//   if (session.status !== 'complete') {
+//     throw new AppError(
+//       httpStatus.BAD_REQUEST,
+//       'Payment session is not completed',
+//     );
+//   }
+
+//   const payment = await Payment.findById(paymentId).populate('user');
+//   if (!payment) {
+//     throw new AppError(httpStatus.NOT_FOUND, 'Payment not found!');
+//   }
+
+//   const order = await orderFuel.findById(payment.orderFuelId);
+//   if (!order) {
+//     throw new AppError(httpStatus.NOT_FOUND, 'Order not found!');
+//   }
+
+//   try {
+//     // Update payment
+//     payment.isPaid = true;
+//     payment.paymentIntentId = paymentIntentId;
+//     await payment.save();
+
+//     // Update orderFuel status
+//     order.isPaid = true;
+//     order.paymentId = payment._id;
+//     order.finalAmountOfPayment = payment.amount;
+//     await order.save();
+
+//     return payment;
+//   } catch (error: any) {
+//     // Handle error and rollback refund
+//     if (paymentIntentId) {
+//       try {
+//         await stripe.refunds.create({ payment_intent: paymentIntentId });
+//       } catch (refundError) {
+//         console.error('Refund failed:');
+//       }
+//     }
+
+//     throw new AppError(httpStatus.BAD_GATEWAY, error.message);
+//   }
+// };
+
 const confirmPayment = async (query: Record<string, any>) => {
   const { sessionId, paymentId } = query;
 
-  const session = await stripe.checkout.sessions.retrieve(sessionId);
-  const paymentIntentId = session.payment_intent as string;
+  const stripeSession = await stripe.checkout.sessions.retrieve(sessionId);
+  const paymentIntentId = stripeSession.payment_intent as string;
 
-  if (session.status !== 'complete') {
+  if (stripeSession.status !== 'complete') {
     throw new AppError(
       httpStatus.BAD_REQUEST,
       'Payment session is not completed',
@@ -448,35 +498,144 @@ const confirmPayment = async (query: Record<string, any>) => {
     throw new AppError(httpStatus.NOT_FOUND, 'Payment not found!');
   }
 
-  const order = await orderFuel.findById(payment.orderFuelId);
-  if (!order) {
-    throw new AppError(httpStatus.NOT_FOUND, 'Order not found!');
+  const isOrder = !!payment.orderFuelId;
+  const isSubscription = !!payment.subscription;
+
+  if (!isOrder && !isSubscription) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'Invalid payment type');
   }
 
-  try {
-    // Update payment
-    payment.isPaid = true;
-    payment.paymentIntentId = paymentIntentId;
-    await payment.save();
-
-    // Update orderFuel status
-    order.isPaid = true;
-    order.paymentId = payment._id;
-    order.finalAmountOfPayment = payment.amount;
-    await order.save();
-
-    return payment;
-  } catch (error: any) {
-    // Handle error and rollback refund
-    if (paymentIntentId) {
-      try {
-        await stripe.refunds.create({ payment_intent: paymentIntentId });
-      } catch (refundError) {
-        console.error('Refund failed:');
-      }
+  if (isOrder) {
+    const order = await orderFuel.findById(payment.orderFuelId);
+    if (!order) {
+      throw new AppError(httpStatus.NOT_FOUND, 'Order not found!');
     }
 
-    throw new AppError(httpStatus.BAD_GATEWAY, error.message);
+    try {
+      payment.isPaid = true;
+      payment.paymentIntentId = paymentIntentId;
+      await payment.save();
+
+      order.isPaid = true;
+      order.paymentId = payment._id;
+      order.finalAmountOfPayment = payment.amount;
+      await order.save();
+
+      return payment;
+    } catch (error: any) {
+      if (paymentIntentId) {
+        try {
+          await stripe.refunds.create({ payment_intent: paymentIntentId });
+        } catch (refundError) {
+          console.error('Refund failed');
+        }
+      }
+      throw new AppError(httpStatus.BAD_GATEWAY, error.message);
+    }
+  }
+
+  if (isSubscription) {
+    const session = await startSession();
+    try {
+      session.startTransaction();
+
+      const updatedPayment = await Payment.findByIdAndUpdate(
+        paymentId,
+        { isPaid: true, paymentIntentId },
+        { new: true, session },
+      ).populate('user');
+
+      const oldSubscription = await Subscription.findOneAndUpdate(
+        {
+          user: updatedPayment?.user,
+          isPaid: true,
+          isExpired: false,
+        },
+        {
+          isExpired: true,
+        },
+        { session },
+      );
+
+      const subscription = await Subscription.findById(
+        updatedPayment?.subscription,
+      )
+        .populate('package')
+        .session(session);
+
+      let expiredAt = moment();
+      if (
+        oldSubscription?.expiredAt &&
+        moment(oldSubscription.expiredAt).isAfter(moment())
+      ) {
+        const remainingTime = moment(oldSubscription.expiredAt).diff(moment());
+        expiredAt = moment().add(remainingTime, 'milliseconds');
+      }
+
+      if (subscription?.durationType) {
+        const durationDay =
+          subscription.durationType === 'monthly'
+            ? 30
+            : subscription.durationType === 'yearly'
+              ? 365
+              : 0;
+        expiredAt = expiredAt.add(durationDay, 'days');
+      }
+
+      await Subscription.findByIdAndUpdate(
+        updatedPayment?.subscription,
+        {
+          isPaid: true,
+          trnId: updatedPayment?.tranId,
+          expiredAt: expiredAt.toDate(),
+        },
+        { session },
+      );
+
+      const user = await User.findById(updatedPayment?.user).session(session);
+      const pkg = subscription?.package as IPackage;
+      const userUpdatePayload: any = {};
+
+      if (pkg) {
+        userUpdatePayload.freeDeliverylimit =
+          (user?.freeDeliverylimit || 0) + (pkg.freeDeliverylimit || 0);
+        userUpdatePayload.coverVehiclelimit =
+          (user?.coverVehiclelimit || 0) + (pkg.coverVehiclelimit || 0);
+        userUpdatePayload.durationDay =
+          (user?.durationDay || 0) +
+          (subscription?.durationType === 'monthly'
+            ? 30
+            : subscription?.durationType === 'yearly'
+              ? 365
+              : 0);
+
+        await User.findByIdAndUpdate(user?._id, userUpdatePayload, {
+          timestamps: false,
+          session,
+        });
+
+        await Package.findByIdAndUpdate(
+          pkg?._id,
+          { $inc: { popularity: 1 } },
+          { session },
+        );
+      }
+
+      await session.commitTransaction();
+      return updatedPayment;
+    } catch (error: any) {
+      await session.abortTransaction();
+      if (paymentIntentId) {
+        try {
+          await stripe.refunds.create({ payment_intent: paymentIntentId });
+        } catch (refundError: any) {
+          console.error('Refund failed:', refundError.message);
+        }
+      }
+      throw new AppError(httpStatus.BAD_GATEWAY, error.message);
+    } finally {
+      session.endSession();
+    }
   }
 };
 
