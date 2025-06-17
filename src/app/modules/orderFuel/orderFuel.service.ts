@@ -8,6 +8,11 @@ import { FuelInfoModel } from '../fuelInfo/fuelInfo.models';
 import { DeliveryAndTipModel } from '../deliveryAndTip/deliveryAndTip.models';
 import { z } from 'zod';
 import { Services } from '../services/services.models';
+import Subscription from '../subscription/subscription.models';
+import { Vehicle } from '../vechile/vechile.models';
+import { IPackage } from '../packages/packages.interface';
+import { User } from '../user/user.models';
+import dayjs from 'dayjs';
 
 const MILES_TO_METERS = 1609.34;
 
@@ -84,88 +89,188 @@ const MILES_TO_METERS = 1609.34;
 
 // Get All
 
+// const createorderFuel = async (payload: IOrderFuel) => {
+//   // console.log('payload', payload);
+//   // 1. If this is a fuel order, look up the fuel price and calculate
+//   let price = 0;
+//   if (payload.orderType !== 'Battery') {
+//     const fuelInfo = await FuelInfoModel.findOne({
+//       fuelName: payload.fuelType,
+//     });
+//     if (!fuelInfo) {
+//       throw new AppError(
+//         httpStatus.BAD_REQUEST,
+//         `Fuel type "${payload.fuelType}" is not recognized`,
+//       );
+//     }
+//     // console.log('fuelInfo', fuelInfo);
+//     price = payload.amount * fuelInfo.fuelPrice;
+//   }
+//   // 2. Check if within 10 miles of any registered service point
+//   const nearbyLocation = await Location.findOne({
+//     location: {
+//       $near: {
+//         $geometry: {
+//           type: 'Point',
+//           coordinates: payload.location.coordinates,
+//         },
+//         $maxDistance: 10 * MILES_TO_METERS,
+//       },
+//     },
+//   });
+//   if (!nearbyLocation) {
+//     throw new AppError(
+//       httpStatus.BAD_REQUEST,
+//       'Service not available at this location. You must be within 10 miles of a service point.',
+//     );
+//   }
+
+//   // 3. Ensure zipCode is present
+//   const zipCode = String(payload.zipCode).trim();
+//   if (!zipCode) {
+//     throw new AppError(httpStatus.BAD_REQUEST, 'Zip code is required');
+//   }
+
+//   const deliveryDoc = await DeliveryAndTipModel.findOne({
+//     name: 'Standard Delivery',
+//     zipCode: { $all: [zipCode] },
+//   });
+
+//   const deliveryFee = deliveryDoc?.price ?? 0;
+
+//   const tipDoc = await DeliveryAndTipModel.findOne({
+//     name: 'tip Deliveryo',
+//     zipCode: { $all: [zipCode] },
+//   });
+//   const tip = tipDoc?.price ?? 0;
+
+//   // 5. Compute final amount:
+//   //    - For battery orders: deliveryFee + tip
+//   //    - Otherwise: price + deliveryFee + tip
+//   const service = await Services.findOne({
+//     serviceName: 'Battery',
+//   });
+//   const servicesFee = service?.price ?? 0;
+//   console.log('servicesFee', servicesFee);
+//   const finalAmountOfPayment =
+//     payload.orderType === 'Battery'
+//       ? servicesFee + deliveryFee + tip
+//       : price + deliveryFee + tip;
+
+//   // 6. Create the order record
+//   const result = await orderFuel.create({
+//     ...payload,
+//     price,
+//     deliveryFee,
+//     tip,
+//     finalAmountOfPayment,
+//     servicesFee,
+//   });
+//   if (!result) {
+//     throw new AppError(httpStatus.BAD_REQUEST, 'Failed to create order');
+//   }
+
+//   return result;
+// };
+
 const createorderFuel = async (payload: IOrderFuel) => {
-  // console.log('payload', payload);
-  // 1. If this is a fuel order, look up the fuel price and calculate
-  let price = 0;
-  if (payload.orderType !== 'Battery') {
-    const fuelInfo = await FuelInfoModel.findOne({
-      fuelName: payload.fuelType,
-    });
-    if (!fuelInfo) {
-      throw new AppError(
-        httpStatus.BAD_REQUEST,
-        `Fuel type "${payload.fuelType}" is not recognized`,
-      );
-    }
-    // console.log('fuelInfo', fuelInfo);
-    price = payload.amount * fuelInfo.fuelPrice;
-  }
-  // 2. Check if within 10 miles of any registered service point
-  const nearbyLocation = await Location.findOne({
-    location: {
-      $near: {
-        $geometry: {
-          type: 'Point',
-          coordinates: payload.location.coordinates,
-        },
-        $maxDistance: 10 * MILES_TO_METERS,
-      },
-    },
-  });
-  if (!nearbyLocation) {
-    throw new AppError(
-      httpStatus.BAD_REQUEST,
-      'Service not available at this location. You must be within 10 miles of a service point.',
-    );
-  }
-
-  // 3. Ensure zipCode is present
-  const zipCode = String(payload.zipCode).trim();
-  if (!zipCode) {
-    throw new AppError(httpStatus.BAD_REQUEST, 'Zip code is required');
-  }
-
-  const deliveryDoc = await DeliveryAndTipModel.findOne({
-    name: 'Standard Delivery',
-    zipCode: { $all: [zipCode] },
-  });
-
-  const deliveryFee = deliveryDoc?.price ?? 0;
-
-  const tipDoc = await DeliveryAndTipModel.findOne({
-    name: 'tip Deliveryo',
-    zipCode: { $all: [zipCode] },
-  });
-  const tip = tipDoc?.price ?? 0;
-
-  // 5. Compute final amount:
-  //    - For battery orders: deliveryFee + tip
-  //    - Otherwise: price + deliveryFee + tip
-  const service = await Services.findOne({
-    serviceName: 'Battery',
-  });
-  const servicesFee = service?.price ?? 0;
-  console.log('servicesFee', servicesFee);
-  const finalAmountOfPayment =
-    payload.orderType === 'Battery'
-      ? servicesFee + deliveryFee + tip
-      : price + deliveryFee + tip;
-
-  // 6. Create the order record
-  const result = await orderFuel.create({
-    ...payload,
-    price,
-    deliveryFee,
-    tip,
-    finalAmountOfPayment,
-    servicesFee,
-  });
-  if (!result) {
-    throw new AppError(httpStatus.BAD_REQUEST, 'Failed to create order');
-  }
-
-  return result;
+  // const user = await User.findById(payload.userId);
+  // if (!user) {
+  //   throw new AppError(httpStatus.NOT_FOUND, 'User not found');
+  // }
+  // const isStillSubscribed = dayjs().diff(user.createdAt, 'month') < 1;
+  // const isSubscriptionVehicle = payload.isSubscriptionVehicle === true;
+  // const isSubscriber = isStillSubscribed && isSubscriptionVehicle;
+  // // 🚫 Block if subscription vehicle but subscription expired
+  // if (isSubscriptionVehicle && !isStillSubscribed) {
+  //   throw new AppError(
+  //     httpStatus.BAD_REQUEST,
+  //     'Your subscription has expired. Please renew to access benefits.',
+  //   );
+  // }
+  // // Step 1: Fuel price (if applicable)
+  // let price = 0;
+  // if (payload.orderType !== 'Battery') {
+  //   const fuelInfo = await FuelInfoModel.findOne({
+  //     fuelName: payload.fuelType,
+  //   });
+  //   if (!fuelInfo) {
+  //     throw new AppError(
+  //       httpStatus.BAD_REQUEST,
+  //       `Fuel type "${payload.fuelType}" is not recognized`,
+  //     );
+  //   }
+  //   price = payload.amount * fuelInfo.fuelPrice;
+  // }
+  // // Step 2: Location within 10 miles
+  // const nearbyLocation = await Location.findOne({
+  //   location: {
+  //     $near: {
+  //       $geometry: {
+  //         type: 'Point',
+  //         coordinates: payload.location.coordinates,
+  //       },
+  //       $maxDistance: 10 * MILES_TO_METERS,
+  //     },
+  //   },
+  // });
+  // if (!nearbyLocation) {
+  //   throw new AppError(
+  //     httpStatus.BAD_REQUEST,
+  //     'Service not available at this location. You must be within 10 miles of a service point.',
+  //   );
+  // }
+  // // Step 3: Zip code and fees
+  // const zipCode = String(payload.zipCode).trim();
+  // if (!zipCode) {
+  //   throw new AppError(httpStatus.BAD_REQUEST, 'Zip code is required');
+  // }
+  // const deliveryDoc = await DeliveryAndTipModel.findOne({
+  //   name: 'Standard Delivery',
+  //   zipCode: { $all: [zipCode] },
+  // });
+  // const deliveryFee = deliveryDoc?.price ?? 0;
+  // const tipDoc = await DeliveryAndTipModel.findOne({
+  //   name: 'tip Deliveryo',
+  //   zipCode: { $all: [zipCode] },
+  // });
+  // const tip = tipDoc?.price ?? 0;
+  // const service = await Services.findOne({ serviceName: 'Battery' });
+  // const servicesFee = service?.price ?? 0;
+  // // Step 4: Final amount with optional benefit for subscriber
+  // let finalAmountOfPayment =
+  //   payload.orderType === 'Battery'
+  //     ? servicesFee + deliveryFee + tip
+  //     : price + deliveryFee + tip;
+  // if (isSubscriber && user.fiftyPercentOffDeliveryFeeAfterWaivedTrips) {
+  //   finalAmountOfPayment -= deliveryFee * 0.5;
+  // }
+  // // Step 5: Create order
+  // const result = await orderFuel.create({
+  //   ...payload,
+  //   price,
+  //   deliveryFee,
+  //   tip,
+  //   servicesFee,
+  //   finalAmountOfPayment,
+  // });
+  // if (!result) {
+  //   throw new AppError(httpStatus.BAD_REQUEST, 'Failed to create order');
+  // }
+  // // Step 6: Decrease user limits (if valid subscriber)
+  // if (isSubscriber) {
+  //   await User.findByIdAndUpdate(
+  //     user._id,
+  //     {
+  //       $inc: {
+  //         freeDeliverylimit: -1,
+  //         coverVehiclelimit: -1,
+  //       },
+  //     },
+  //     { new: true },
+  //   );
+  // }
+  // return result;
 };
 
 const getAllorderFuel = async (query: Record<string, any>) => {
@@ -258,9 +363,9 @@ const getorderFuelByDriverId = async (
   const data = await queryBuilder.modelQuery;
   const meta = await queryBuilder.countTotal();
 
-  // if (!data || data.length === 0) {
-  //   throw new AppError(httpStatus.NOT_FOUND, 'Order driver not found');
-  // }
+  if (!data || data.length === 0) {
+    throw new AppError(httpStatus.NOT_FOUND, 'Order driver not found');
+  }
 
   return { data, meta };
 };
@@ -270,7 +375,7 @@ const getorderFuelByUserId = async (
   query: Record<string, any>,
 ) => {
   const queryBuilder = new QueryBuilder(
-    orderFuel.find({ userId }).populate('userId'),
+    orderFuel.find({ userId }).populate('userId', 'driverId'),
     query,
   )
     .search(['location', 'fuelType'])

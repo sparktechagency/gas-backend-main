@@ -32,10 +32,32 @@ export interface IUser {
     status: boolean;
   };
   // 👇 Subscription fields
-  freeDeliverylimit: number;
-  coverVehiclelimit: number;
   durationDay: number;
   totalEarning: number;
+  title: string;
+  shortTitle: string;
+  shortDescription: string;
+
+  // Pricing
+  monthlyPrice: number;
+  yearlyPrice: number;
+
+  // How popular this package is (e.g. number of sign-ups or a ranking)
+  popularity: number;
+
+  // e.g. "MONTHLY", "YEARLY", etc. — whatever values your durationType enum holds
+  // durationType?: durationType;
+  // Limits
+  freeDeliverylimit: number;
+  coverVehiclelimit: number;
+
+  // NEW BOOLEAN FLAGS (shown as dropdowns in the screenshot)
+  fiftyPercentOffDeliveryFeeAfterWaivedTrips: boolean;
+  scheduledDelivery: boolean;
+  fuelPriceTrackingAlerts: boolean;
+  noExtraChargeForEmergencyFuelServiceLimit: boolean;
+  freeSubscriptionAdditionalFamilyMember: boolean;
+  exclusivePromotionsEarlyAccess: boolean;
 }
 
 export interface UserModel extends Model<IUser> {

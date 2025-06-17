@@ -101,6 +101,72 @@ const userSchema: Schema<IUser> = new Schema(
         default: false,
       },
     },
+    title: {
+      type: String,
+      required: true,
+    },
+    shortTitle: {
+      type: String,
+      required: true,
+    },
+    shortDescription: {
+      type: String,
+      required: true,
+    },
+
+    // ───────────────────────────────────────────────────────
+    // PRICING
+    monthlyPrice: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
+    yearlyPrice: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
+
+    // ───────────────────────────────────────────────────────
+    // POPULARITY / DURATION
+    popularity: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    
+    // ───────────────────────────────────────────────────────
+    // BOOLEAN FLAGS (from the screenshot’s dropdowns)
+    fiftyPercentOffDeliveryFeeAfterWaivedTrips: {
+      type: Boolean,
+      required: true,
+      default: false,
+    },
+    scheduledDelivery: {
+      type: Boolean,
+      required: true,
+      default: false,
+    },
+    fuelPriceTrackingAlerts: {
+      type: Boolean,
+      required: true,
+      default: false,
+    },
+    noExtraChargeForEmergencyFuelServiceLimit: {
+      type: Boolean,
+      required: true,
+      default: false,
+    },
+    freeSubscriptionAdditionalFamilyMember: {
+      type: Boolean,
+      required: true,
+      default: false,
+    },
+    exclusivePromotionsEarlyAccess: {
+      type: Boolean,
+      required: true,
+      default: false,
+    },
   },
   {
     timestamps: true,

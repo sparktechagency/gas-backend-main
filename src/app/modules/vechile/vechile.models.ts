@@ -24,6 +24,10 @@ const vechileSchema: Schema<IVehicle> = new Schema(
       required: true,
       ref: 'User',
     },
+    isCoveredBySubscription: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,

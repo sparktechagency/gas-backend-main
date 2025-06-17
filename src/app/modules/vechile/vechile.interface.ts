@@ -8,4 +8,5 @@ export interface IVehicle {
   year: number;
   fuelLevel: number;
   userId: ObjectId;
+  isCoveredBySubscription: boolean;
 }
