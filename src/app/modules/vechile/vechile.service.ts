@@ -8,7 +8,7 @@ import Subscription from '../subscription/subscription.models';
 
 // Create a new vehicle
 const createvechile = async (payload: IVehicle) => {
-  // Check if the user is a subscriber and has a coverVehicleLimit
+  // Check if the user exists
   const user = await User.findById(payload.userId);
   if (!user) {
     throw new AppError(httpStatus.BAD_REQUEST, 'User not found');
@@ -16,34 +16,27 @@ const createvechile = async (payload: IVehicle) => {
 
   const subscription = await Subscription.findOne({ user: payload.userId });
 
-  if (!subscription) {
-    throw new AppError(
-      httpStatus.BAD_REQUEST,
-      'User does not have an active subscription',
-    );
-  }
+  // Check if the user is a subscriber
+  const isSubscriber = subscription !== null;
 
-  // Check the user's coverVehicleLimit
-  if (user.coverVehiclelimit <= 0) {
-    throw new AppError(
-      httpStatus.BAD_REQUEST,
-      'User has no available vehicle limit',
-    );
-  }
+  if (isSubscriber) {
+    // Check the user's coverVehicleLimit if they are a subscriber
+    if (user.coverVehiclelimit <= 0) {
+      throw new AppError(
+        httpStatus.BAD_REQUEST,
+        'User has no available vehicle limit',
+      );
+    }
 
-  // Create the vehicle with the correct subscription flag
-  const isSubscriber = subscription; // Assuming 1 is subscriber, 2 is non-subscriber
-  const isCoveredBySubscription = isSubscriber && user.coverVehiclelimit > 0;
-
-  // Decrease the coverVehicleLimit if the user is a subscriber
-  if (isCoveredBySubscription) {
+    // Decrease the coverVehicleLimit if the user is a subscriber
     user.coverVehiclelimit -= 1;
     await user.save();
   }
 
+  // Create the vehicle data
   const vehicleData = {
     ...payload,
-    isCoveredBySubscription,
+    isCoveredBySubscription: isSubscriber && user.coverVehiclelimit > 0,
   };
 
   const result = await Vehicle.create(vehicleData);
