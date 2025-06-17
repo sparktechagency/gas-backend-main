@@ -188,15 +188,21 @@ const createorderFuel = async (payload: IOrderFuel) => {
 
   const isStillSubscribed =
     subscription && dayjs().diff(subscription.createdAt, 'month') < 1;
-  const vehicle = await Vehicle.findById(payload.vehicleId);
+  const vehicle = await Vehicle.findOne({
+    _id: payload.vehicleId,
+    userId: payload.userId,
+  });
+
   if (!vehicle) {
-    throw new AppError(httpStatus.NOT_FOUND, 'Vehicle not found');
+    throw new AppError(
+      httpStatus.NOT_FOUND,
+      'Vehicle not found or does not belong to the specified user',
+    );
   }
 
   const isSubscriptionVehicle = vehicle.isCoveredBySubscription;
   const isSubscriber = isStillSubscribed && isSubscriptionVehicle;
 
-  // 🚫 Block if subscription vehicle but subscription expired
   if (isSubscriptionVehicle && !isStillSubscribed) {
     throw new AppError(
       httpStatus.BAD_REQUEST,
@@ -269,6 +275,20 @@ const createorderFuel = async (payload: IOrderFuel) => {
   if (isSubscriber && user.fiftyPercentOffDeliveryFeeAfterWaivedTrips) {
     finalAmountOfPayment -= deliveryFee * 0.5; // Discount for subscribers
   }
+  // Check if subscriber has free delivery limit and apply waiver
+  if (isSubscriber && user.freeDeliverylimit > 0) {
+    finalAmountOfPayment -= deliveryFee; // Waive delivery fee
+    // Decrease the freeDeliveryLimit for the user
+    await User.findByIdAndUpdate(
+      user._id,
+      {
+        $inc: {
+          freeDeliverylimit: -1,
+        },
+      },
+      { new: true },
+    );
+  }
 
   // Step 6: Create the fuel order record
   const result = await orderFuel.create({
@@ -291,7 +311,6 @@ const createorderFuel = async (payload: IOrderFuel) => {
       {
         $inc: {
           freeDeliveryLimit: -1,
-          coverVehicleLimit: -1,
         },
       },
       { new: true },
