@@ -89,7 +89,7 @@ const getmyorderFuel = catchAsync(async (req: Request, res: Response) => {
   sendResponse(res, {
     statusCode: 200,
     success: true,
-    message: 'Order driver retrieved successfully',
+    message: 'Orders retrieved successfully',
     data: result,
   });
 });

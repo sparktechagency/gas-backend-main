@@ -282,10 +282,7 @@ const getorderFuelByUserId = async (
   const data = await queryBuilder.modelQuery;
   const meta = await queryBuilder.countTotal();
 
-  if (!data || data.length === 0) {
-    throw new AppError(httpStatus.NOT_FOUND, 'Order  not found');
-  }
-
+  // No error thrown, just return empty array and meta
   return { data, meta };
 };
 
