@@ -375,7 +375,9 @@ const getorderFuelByUserId = async (
   query: Record<string, any>,
 ) => {
   const queryBuilder = new QueryBuilder(
-    orderFuel.find({ userId }).populate('userId', 'driverId'),
+    orderFuel
+      .find({ userId })
+      .populate([{ path: 'userId' }, { path: 'driverId' }]),
     query,
   )
     .search(['location', 'fuelType'])
