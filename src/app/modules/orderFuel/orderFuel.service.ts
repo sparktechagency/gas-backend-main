@@ -258,9 +258,9 @@ const getorderFuelByDriverId = async (
   const data = await queryBuilder.modelQuery;
   const meta = await queryBuilder.countTotal();
 
-  if (!data || data.length === 0) {
-    throw new AppError(httpStatus.NOT_FOUND, 'Order driver not found');
-  }
+  // if (!data || data.length === 0) {
+  //   throw new AppError(httpStatus.NOT_FOUND, 'Order driver not found');
+  // }
 
   return { data, meta };
 };
