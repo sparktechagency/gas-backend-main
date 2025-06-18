@@ -77,6 +77,19 @@ const getVechileByUser = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getSubscriptionVehicles = catchAsync(
+  async (req: Request, res: Response) => {
+    const userId = req?.user?.userId;
+    const result = await vechileService.getSubscriptionVehicles(userId);
+    sendResponse(res, {
+      statusCode: 200,
+      success: true,
+      message: 'Subscription vehicles retrieved successfully',
+      data: result,
+    });
+  },
+);
+
 export const vechileController = {
   createvechile,
   getAllvechile,
@@ -85,4 +98,5 @@ export const vechileController = {
   deletevechile,
   getMyVechiles,
   getVechileByUser,
+  getSubscriptionVehicles,
 };

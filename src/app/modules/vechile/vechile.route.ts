@@ -13,7 +13,11 @@ router.get(
   auth(USER_ROLE.user),
   vechileController.getMyVechiles,
 );
-
+router.get(
+  '/subscription-vehicles',
+  auth(USER_ROLE.user),
+  vechileController.getSubscriptionVehicles,
+);
 router.delete('/:id', vechileController.deletevechile);
 router.get(
   '/my-vehicles',

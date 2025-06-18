@@ -113,6 +113,17 @@ const getMyVechiles = async (userId: string, query: Record<string, any>) => {
   return { data, meta };
 };
 
+const getSubscriptionVehicles = async (userId: string) => {
+  const result = await Vehicle.find({
+    userId: userId,
+    isCoveredBySubscription: true,
+  }).populate('userId');
+  if (!result) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'You have no vehicles');
+  }
+  return result;
+};
+
 export const vechileService = {
   createvechile,
   getAllvechile,
@@ -121,4 +132,5 @@ export const vechileService = {
   deletevechile,
   getMyVechiles,
   getVechileByUser,
+  getSubscriptionVehicles,
 };
