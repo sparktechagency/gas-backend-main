@@ -139,14 +139,15 @@ const initializeSocketIO = (server: HttpServer) => {
         ) => {
           try {
             const data = messageData;
+            const Key = 'serverToSendLocation::' + user.userId.toString();
+            console.log('locationd--', data, Key);
             // console.log('locationd--', data);
-            return socket.emit('serverToSendLocation::' + user.userId, data);
+            return socket.emit(Key, data);
           } catch (error: any) {
             console.log('🚀 ~ error:', error);
           }
         },
       );
-
       //----------------------chat list------------------------//
       socket.on('my-chat-list', async (data, callback) => {
         try {
