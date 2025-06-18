@@ -139,7 +139,7 @@ const initializeSocketIO = (server: HttpServer) => {
         ) => {
           try {
             const data = messageData;
-            console.log("----------------------->>",user?.userId);
+            console.log("----------------------->>",user);
             const Key = 'serverToSendLocation::' + user.userId;
             console.log('locationd--', data, Key);
             // console.log('locationd--', data);
