@@ -161,6 +161,10 @@ const userSchema: Schema<IUser> = new Schema(
       type: Boolean,
       default: false,
     },
+    familyMember: {
+      name: { type: String },
+      email: { type: String },
+    },
   },
   {
     timestamps: true,

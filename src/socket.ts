@@ -140,10 +140,7 @@ const initializeSocketIO = (server: HttpServer) => {
           try {
             const data = messageData;
             // console.log('locationd--', data);
-            return socket.broadcast.emit(
-              'serverToSendLocation::' + user.userId,
-              data,
-            );
+            return socket.emit('serverToSendLocation::' + user.userId, data);
           } catch (error: any) {
             console.log('🚀 ~ error:', error);
           }

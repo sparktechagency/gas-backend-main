@@ -58,6 +58,10 @@ export interface IUser {
   noExtraChargeForEmergencyFuelServiceLimit: boolean;
   freeSubscriptionAdditionalFamilyMember: boolean;
   exclusivePromotionsEarlyAccess: boolean;
+  familyMember: {
+    name: string;
+    email: string;
+  };
 }
 
 export interface UserModel extends Model<IUser> {
