@@ -131,18 +131,24 @@ const initializeSocketIO = (server: HttpServer) => {
         callback({ success: true });
       });
 
-      socket.on(
+       socket.on(
         'getLocation',
         async (
           messageData: { latitude: number; longitude: number },
           callback: any,
         ) => {
           try {
-            const data = messageData; 
-            const Key = 'serverToSendLocation::'  + user?._id?.toString();
-            console.log('locationd--', data, Key);
+            const data = messageData;
+            console.log(
+              '🚀 ~ initializeSocketIO ~ user._id:',
+              user._id?.toString(),
+            );
+            console.log('🚀 ~ initializeSocketIO ~ data:', data);
+
             // console.log('locationd--', data);
-            return io.emit(Key, data);
+            const key = 'serverToSendLocation::' + user._id?.toString();
+            console.log(key);
+            return io.emit(key, data);
           } catch (error: any) {
             console.log('🚀 ~ error:', error);
           }
