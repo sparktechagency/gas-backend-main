@@ -25,4 +25,7 @@ export interface IOrderFuel {
   proofImage: string;
   deleveryId: ObjectId;
   emergency: boolean;
+  schedulDate: Date;
+  schedulTime: string;
+  emergencyTime: string;
 }

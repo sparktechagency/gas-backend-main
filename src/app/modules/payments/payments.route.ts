@@ -10,6 +10,13 @@ router.post(
   auth(USER_ROLE.user, USER_ROLE.driver),
   paymentsController.Subscriptioncheckout,
 );
+
+router.post(
+  '/optional-tip/checkout',
+  auth(USER_ROLE.user, USER_ROLE.driver),
+  paymentsController.optionalTipcheckout,
+);
+
 router.get(
   '/subscription/confirm-payment',
   paymentsController.subscriptionConfirmPayment,

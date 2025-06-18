@@ -193,6 +193,18 @@ const Subscriptioncheckout = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const optionalTipcheckout = catchAsync(async (req: Request, res: Response) => {
+  console.log('req.body', req.body);
+  req.body.user = req.user.userId;
+  const result = await paymentsService.tipCheckout(req.body);
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    data: result,
+    message: 'payment link get successful',
+  });
+});
+
 const subscriptionConfirmPayment = catchAsync(
   async (req: Request, res: Response) => {
     console.log('req.query', req?.query);
@@ -220,4 +232,5 @@ export const paymentsController = {
   // generateInvoice,
   Subscriptioncheckout,
   subscriptionConfirmPayment,
+  optionalTipcheckout,
 };

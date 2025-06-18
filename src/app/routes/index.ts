@@ -27,6 +27,7 @@ import { withdrawRoutes } from '../modules/withdraw/withdraw.route';
 import { checklistRoutes } from '../modules/checklist/checklist.route';
 import { messagesRoutes } from '../modules/messages/messages.route';
 import { chatRoutes } from '../modules/chat/chat.route';
+import { optionalTipRoutes } from '../modules/optionalTip/optionalTip.route';
 
 const router = Router();
 const moduleRoutes = [
@@ -141,6 +142,10 @@ const moduleRoutes = [
   {
     path: '/chats',
     route: chatRoutes,
+  },
+  {
+    path: '/optionalTip',
+    route: optionalTipRoutes,
   },
 ];
 moduleRoutes.forEach(route => router.use(route.path, route.route));

@@ -34,5 +34,3 @@ export interface IPackage {
   freeSubscriptionAdditionalFamilyMember: boolean;
   exclusivePromotionsEarlyAccess: boolean;
 }
-
-export type IPackageModel = Model<IPackage, Record<string, unknown>>;

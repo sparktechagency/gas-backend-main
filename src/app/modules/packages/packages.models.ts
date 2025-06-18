@@ -1,5 +1,5 @@
 import { model, Schema } from 'mongoose';
-import { IPackage, IPackageModel } from './packages.interface';
+import { IPackage } from './packages.interface';
 import { durationType } from './packages.constants';
 
 const PackageSchema = new Schema<IPackage>(
@@ -123,6 +123,6 @@ PackageSchema.pre('aggregate', function (next) {
   next();
 });
 
-const Package = model<IPackage, IPackageModel>('Package', PackageSchema);
+const Package = model<IPackage>('Package', PackageSchema);
 
 export default Package;

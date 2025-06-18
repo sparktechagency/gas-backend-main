@@ -21,6 +21,7 @@ import { subscribe } from 'diagnostics_channel';
 import Package from '../packages/packages.models';
 import QueryBuilder from '../../builder/QueryBuilder';
 import { orderFuel } from '../orderFuel/orderFuel.models';
+import { Tip } from '../optionalTip/optionalTip.models';
 
 const stripe = new Stripe(config.stripe?.stripe_api_secret as string, {
   apiVersion: '2024-06-20',
@@ -133,6 +134,59 @@ const checkout = async (payload: IPayment) => {
     product: {
       amount: paymentData.amount,
       name: 'Fuel Order Payment',
+      quantity: 1,
+    },
+    paymentId: paymentData._id ? paymentData._id.toString() : '',
+  });
+
+  return checkoutSession?.url;
+};
+
+const tipCheckout = async (payload: IPayment) => {
+  const tranId = generateRandomString(10);
+  let paymentData: IPayment;
+
+  const tip = await Tip.findById(payload?.optionalTipId);
+  if (!tip) {
+    throw new AppError(httpStatus.NOT_FOUND, 'Tip not found!');
+  }
+
+  const user = await User.findById(payload?.user);
+  const amount = tip.amount;
+
+  // Check for existing unpaid payment for the order
+  const existingPayment: IPayment | null = await Payment.findOne({
+    orderFuelId: tip._id,
+    isPaid: false,
+    user: payload?.user,
+  });
+
+  if (existingPayment) {
+    const updatedPayment = await Payment.findByIdAndUpdate(
+      existingPayment._id,
+      { tranId, amount },
+      { new: true },
+    );
+    paymentData = updatedPayment as IPayment;
+  } else {
+    payload.tranId = tranId;
+    payload.amount = amount;
+    payload.optionalTipId = tip._id as any;
+
+    const createdPayment = await Payment.create(payload);
+    if (!createdPayment) {
+      throw new AppError(
+        httpStatus.INTERNAL_SERVER_ERROR,
+        'Failed to create payment',
+      );
+    }
+    paymentData = createdPayment;
+  }
+
+  const checkoutSession = await createCheckoutSession({
+    product: {
+      amount: paymentData.amount,
+      name: 'tip Payment',
       quantity: 1,
     },
     paymentId: paymentData._id ? paymentData._id.toString() : '',
@@ -302,7 +356,6 @@ const checkout = async (payload: IPayment) => {
 
 const confirmPayment = async (query: Record<string, any>) => {
   const { sessionId, paymentId } = query;
-
   // Retrieve the Stripe session
   const stripeSession = await stripe.checkout.sessions.retrieve(sessionId);
   const paymentIntentId = stripeSession.payment_intent as string;
@@ -317,7 +370,6 @@ const confirmPayment = async (query: Record<string, any>) => {
   // Start a session for transaction
   const session = await startSession();
   session.startTransaction();
-
   try {
     // Fetch the payment document
     const payment = await Payment.findById(paymentId)
@@ -326,11 +378,11 @@ const confirmPayment = async (query: Record<string, any>) => {
     if (!payment) {
       throw new AppError(httpStatus.NOT_FOUND, 'Payment not found!');
     }
-
+    const isOptionalTip = !!payment.optionalTipId;
     const isOrder = !!payment.orderFuelId;
     const isSubscription = !!payment.subscription;
 
-    if (!isOrder && !isSubscription) {
+    if (!isOrder && !isSubscription && !isOptionalTip) {
       throw new AppError(httpStatus.BAD_REQUEST, 'Invalid payment type');
     }
 
@@ -350,6 +402,32 @@ const confirmPayment = async (query: Record<string, any>) => {
       order.paymentId = payment._id;
       order.finalAmountOfPayment = payment.amount;
       await order.save({ session });
+
+      await session.commitTransaction();
+      return payment;
+    }
+
+    if (isOptionalTip) {
+      const tip = await Tip.findById(payment.optionalTipId).session(session);
+      if (!tip) {
+        throw new AppError(httpStatus.NOT_FOUND, 'Order not found!');
+      }
+
+      payment.isPaid = true;
+      payment.paymentIntentId = paymentIntentId;
+      await payment.save({ session });
+
+      tip.isPaid = true;
+      tip.paymentId = payment._id;
+      tip.amount = payment.amount;
+      await tip.save({ session });
+
+      const user = await User.findById(payment.user).session(session);
+      if (!user) {
+        throw new AppError(httpStatus.NOT_FOUND, 'User not found!');
+      }
+      user.totalEarning = user.totalEarning + payment.amount;
+      await user.save({ session });
 
       await session.commitTransaction();
       return payment;
@@ -437,6 +515,7 @@ const confirmPayment = async (query: Record<string, any>) => {
           pkg.fuelPriceTrackingAlerts || false;
         userUpdatePayload.exclusivePromotionsEarlyAccess =
           pkg.exclusivePromotionsEarlyAccess || false;
+        userUpdatePayload.title = pkg.title;
 
         // Update the user document with new package benefits
         await User.findByIdAndUpdate(user?._id, userUpdatePayload, {
@@ -1481,4 +1560,5 @@ export const paymentsService = {
   // generateInvoice,
   SubscriptionConfirmPayment,
   SubscriptionCheckout,
+  tipCheckout,
 };

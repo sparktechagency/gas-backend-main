@@ -16,6 +16,10 @@ const PaymentSchema = new Schema<IPayment>(
       type: Schema.Types.ObjectId,
       ref: 'OrderFuel',
     },
+    optionalTipId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Tip',
+    },
     amount: {
       type: Number,
       min: 0,
