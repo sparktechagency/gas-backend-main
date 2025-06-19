@@ -29,8 +29,11 @@ const createvechile = async (payload: IVehicle) => {
     }
 
     // Decrease the coverVehicleLimit if the user is a subscriber
-    user.coverVehiclelimit -= 1;
-    await user.save();
+    await User.findByIdAndUpdate(
+      user._id,
+      { $inc: { coverVehiclelimit: -1 } }, // Decrement by 1
+      { new: true }, // Optional: returns the updated document
+    );
   }
 
   // Create the vehicle data
