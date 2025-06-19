@@ -236,6 +236,15 @@ const updatedelivery = async (id: string, payload: Partial<Idelivery>) => {
       'Failed to update delivery record',
     );
   }
+
+  if(result.status === 'delivered'){
+      //@ts-ignore
+  const io = global.socketio;
+  if (io) {
+    const ver = 'orderDeleverd::' + result?.orderId;
+    io.emit(ver, { success:true, data:result });
+  }
+  }
   return result;
 };
 
