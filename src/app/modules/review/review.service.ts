@@ -3,31 +3,55 @@ import AppError from '../../error/AppError';
 import { IReview } from './review.interface';
 import QueryBuilder from '../../builder/QueryBuilder';
 import { Review } from './review.models';
+ 
+import { ClientSession, startSession } from 'mongoose';
+import { getAverageRating } from './review.utils';
 import { User } from '../user/user.models';
-
+ 
+ 
 // Create a new review
-const createreview = async (payload: IReview) => {
-  // Step 1: Create the review
-  const result = await Review.create(payload);
-  if (!result) {
-    throw new AppError(httpStatus.BAD_REQUEST, 'Failed to create review');
-  }
+const createreview = async (payload: IReview) => { 
+  const session: ClientSession = await startSession();
+  session.startTransaction();
 
-  // Step 2: Fetch all reviews for the same driver
-  const allDriverReviews = await Review.find({ driverId: payload.driverId });
 
-  // Step 3: Calculate the average rating
-  const totalRatings = allDriverReviews.reduce((sum, r) => sum + r.rating, 0);
-  const avgRating = parseFloat(
-    (totalRatings / allDriverReviews.length).toFixed(2),
-  );
+  try{
 
-  // Step 4: Update the driver's average rating (assuming User is the driver model)
-  await User.findByIdAndUpdate(payload.driverId, {
-    AverageRating: avgRating,
-  });
+    const result: IReview[] = await Review.create([payload], { session });
+    if (!result || result?.length === 0) {
+      throw new AppError(httpStatus.BAD_REQUEST, 'Failed to create review');
+    }
 
-  return result;
+    const { averageRating, totalReviews } = await getAverageRating(
+      result[0]?.driverId?.toString(),
+    );
+
+    const newAvgRating =
+      (Number(averageRating) * Number(totalReviews) + Number(payload.rating)) /
+      (totalReviews + 1);
+
+      await User.findByIdAndUpdate(
+        result[0]?.driverId,
+        {
+          avgRating: newAvgRating,
+          $addToSet: { reviews: result[0]?._id },
+        },
+        { session },
+      );
+      await session.commitTransaction();
+      session.endSession();
+  
+      return result[0];
+  }catch(error:any){
+
+    await session.abortTransaction();
+    session.endSession();
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      error?.message || 'Review creation failed',
+    );
+  }  
+ 
 };
 
 // Get all reviews with pagination, filter, search, and population

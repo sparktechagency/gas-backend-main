@@ -11,6 +11,8 @@ export interface IUser {
   location: string;
   country: string;
   zipCode: string;
+  avgRatings:number;
+  reviews:Types.ObjectId[];
   phoneNumber: string;
   password: string;
   gender: 'Male' | 'Female' | 'Others';

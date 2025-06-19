@@ -443,7 +443,7 @@ const getorderFuelByUserId = async (
   const queryBuilder = new QueryBuilder(
     orderFuel
       .find({ userId })
-      .populate([{ path: 'userId' }, { path: 'driverId' }]),
+      .populate([{ path: 'userId' }, { path: 'driverId', populate:[{path:"reviews"}] }]),
     query,
   )
     .search(['location', 'fuelType'])

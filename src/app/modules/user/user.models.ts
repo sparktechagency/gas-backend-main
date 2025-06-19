@@ -108,6 +108,11 @@ const userSchema: Schema<IUser> = new Schema(
     title: {
       type: String,
     },
+    reviews:[{type:Schema.Types.ObjectId, ref:"Review"}],
+    avgRatings:{
+      type:Number,
+      default:0
+    },
     shortTitle: {
       type: String,
     },
