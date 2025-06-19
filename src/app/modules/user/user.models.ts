@@ -83,7 +83,7 @@ const userSchema: Schema<IUser> = new Schema(
     // Subscription
     freeDeliverylimit: { type: Number, default: 0, required: true },
     coverVehiclelimit: { type: Number, default: 0, required: true },
-    durationDay: { type: Number, default: 0, required: true },
+    durationDay: { type: Date, default: 0 },
     isDeleted: {
       type: Boolean,
       default: false,

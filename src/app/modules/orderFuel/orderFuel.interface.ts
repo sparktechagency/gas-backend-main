@@ -28,4 +28,5 @@ export interface IOrderFuel {
   schedulDate: string;
   schedulTime: string;
   emergencyTime: string;
+  cuponCode: string;
 }

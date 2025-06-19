@@ -32,7 +32,7 @@ export interface IUser {
     status: boolean;
   };
   // 👇 Subscription fields
-  durationDay: number;
+  durationDay: Date;
   totalEarning: number;
   title: string;
   shortTitle: string;

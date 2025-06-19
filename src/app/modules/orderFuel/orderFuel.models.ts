@@ -117,6 +117,10 @@ const orderFuelSchema: Schema<IOrderFuel> = new Schema(
       type: String,
       default: '',
     },
+    cuponCode: {
+      type: String,
+      default: '',
+    },
   },
   {
     timestamps: true,

@@ -32,16 +32,23 @@ const createSubscription = async (payload: ISubscriptions) => {
     );
   }
 
-  if (payload.durationType == 'monthly') {
-    payload.amount = packages.monthlyPrice;
-    payload.durationType = payload.durationType;
-  } else if (payload.durationType === 'yearly') {
-    payload.amount = packages.yearlyPrice;
-    payload.durationType = payload.durationType;
-  } else {
-    throw new AppError(httpStatus.BAD_REQUEST, 'Invalid duration type');
-  }
-  const result = await Subscription.create(payload);
+  // if (payload.durationType == 'monthly') {
+  //   payload.amount = packages.monthlyPrice;
+  //   payload.durationType = payload.durationType;
+  // } else if (payload.durationType === 'yearly') {
+  //   payload.amount = packages.yearlyPrice;
+  //   payload.durationType = payload.durationType;
+  // } else {
+  //   throw new AppError(httpStatus.BAD_REQUEST, 'Invalid duration type');
+  // }
+
+  payload.amount = packages.monthlyPrice;
+  const currentDate = new Date();
+  const expiredAt = new Date(currentDate.getTime() + 30 * 24 * 60 * 60 * 1000); // Adds 30 days
+  const result = await Subscription.create({
+    ...payload,
+    expiredAt,
+  });
   if (!result) {
     throw new Error('Failed to create subscription');
   }

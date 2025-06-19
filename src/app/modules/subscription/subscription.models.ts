@@ -10,7 +10,6 @@ const SubscriptionsSchema = new Schema<ISubscriptions>(
     durationType: {
       type: String,
       enum: ['monthly', 'yearly'],
-      required: true,
     },
     isPaid: { type: Boolean, default: false },
     trnId: { type: String, default: null },

@@ -495,13 +495,8 @@ const confirmPayment = async (query: Record<string, any>) => {
           (user?.freeDeliverylimit || 0) + (pkg.freeDeliverylimit || 0);
         userUpdatePayload.coverVehiclelimit =
           (user?.coverVehiclelimit || 0) + (pkg.coverVehiclelimit || 0);
-        userUpdatePayload.durationDay =
-          (user?.durationDay || 0) +
-          (subscription?.durationType === 'monthly'
-            ? 30
-            : subscription?.durationType === 'yearly'
-              ? 365
-              : 0);
+        userUpdatePayload.durationDay = userUpdatePayload.durationDay =
+          subscription?.expiredAt;
 
         // Additional benefits from the package
         userUpdatePayload.noExtraChargeForEmergencyFuelServiceLimit =
@@ -1476,13 +1471,7 @@ const SubscriptionConfirmPayment = async (query: Record<string, any>) => {
     }
 
     if (subscription?.durationType) {
-      const durationDay =
-        subscription.durationType === 'monthly'
-          ? 30
-          : subscription.durationType === 'yearly'
-            ? 365
-            : 0;
-      expiredAt = expiredAt.add(durationDay, 'days');
+      expiredAt = expiredAt;
     }
 
     await Subscription.findByIdAndUpdate(
@@ -1514,7 +1503,7 @@ const SubscriptionConfirmPayment = async (query: Record<string, any>) => {
         additionalDays = 365;
       }
 
-      newUser['durationDay'] = (user?.durationDay || 0) + additionalDays;
+      // newUser['durationDay'] = (user?.durationDay || 0) + additionalDays;
 
       await User.findByIdAndUpdate(user?._id, newUser, {
         timestamps: false,
