@@ -106,13 +106,16 @@ const orderFuelSchema: Schema<IOrderFuel> = new Schema(
       default: false,
     },
     schedulDate: {
-      type: Date,
+      type: String,
+      default: '',
     },
     schedulTime: {
       type: String,
+      default: '',
     },
     emergencyTime: {
       type: String,
+      default: '',
     },
   },
   {

@@ -251,13 +251,13 @@ const createorderFuel = async (payload: IOrderFuel) => {
   }
 
   const deliveryDoc = await DeliveryAndTipModel.findOne({
-    name: 'Standard Delivery',
+    // name: 'Standard Delivery',
     zipCode: { $all: [zipCode] },
   });
   const deliveryFee = deliveryDoc?.price ?? 0;
 
   const tipDoc = await DeliveryAndTipModel.findOne({
-    name: 'tip Deliveryo',
+    // name: 'tip Deliveryo',
     zipCode: { $all: [zipCode] },
   });
   const tip = tipDoc?.price ?? 0;
