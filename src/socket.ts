@@ -32,6 +32,8 @@ const initializeSocketIO = (server: HttpServer) => {
       //----------------------user token get from front end-------------------------//
       const token =
         socket.handshake.auth?.token || socket.handshake.headers?.token;
+
+      console.log('---------------', token);
       //----------------------check Token and return user details-------------------------//
       const user: any = await getUserDetailsFromToken(token);
       if (!user) {
@@ -131,15 +133,15 @@ const initializeSocketIO = (server: HttpServer) => {
         callback({ success: true });
       });
 
-       socket.on(
+      socket.on(
         'getLocation',
         async (
           messageData: { latitude: number; longitude: number },
           callback: any,
         ) => {
           try {
-            const data = messageData;  
-            const key = 'serverToSendLocation::' + user._id?.toString(); 
+            const data = messageData;
+            const key = 'serverToSendLocation::' + user._id?.toString();
             return io.emit(key, data);
           } catch (error: any) {
             console.log('🚀 ~ error:', error);
