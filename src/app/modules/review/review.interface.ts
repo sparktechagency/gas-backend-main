@@ -7,4 +7,5 @@ export interface IReview {
   userId: ObjectId;
   rating: number;
   review: string;
+  averageRating?: number;
 }

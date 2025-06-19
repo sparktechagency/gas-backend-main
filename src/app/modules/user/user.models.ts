@@ -80,6 +80,10 @@ const userSchema: Schema<IUser> = new Schema(
     passwordChangedAt: {
       type: Date,
     },
+    AverageRating: {
+      type: Number,
+      default: 0,
+    },
     // Subscription
     freeDeliverylimit: { type: Number, default: 0, required: true },
     coverVehiclelimit: { type: Number, default: 0, required: true },

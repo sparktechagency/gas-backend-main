@@ -3,13 +3,30 @@ import AppError from '../../error/AppError';
 import { IReview } from './review.interface';
 import QueryBuilder from '../../builder/QueryBuilder';
 import { Review } from './review.models';
+import { User } from '../user/user.models';
 
 // Create a new review
 const createreview = async (payload: IReview) => {
+  // Step 1: Create the review
   const result = await Review.create(payload);
   if (!result) {
     throw new AppError(httpStatus.BAD_REQUEST, 'Failed to create review');
   }
+
+  // Step 2: Fetch all reviews for the same driver
+  const allDriverReviews = await Review.find({ driverId: payload.driverId });
+
+  // Step 3: Calculate the average rating
+  const totalRatings = allDriverReviews.reduce((sum, r) => sum + r.rating, 0);
+  const avgRating = parseFloat(
+    (totalRatings / allDriverReviews.length).toFixed(2),
+  );
+
+  // Step 4: Update the driver's average rating (assuming User is the driver model)
+  await User.findByIdAndUpdate(payload.driverId, {
+    AverageRating: avgRating,
+  });
+
   return result;
 };
 

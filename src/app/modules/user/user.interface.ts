@@ -38,7 +38,7 @@ export interface IUser {
   shortTitle: string;
   shortDescription: string;
   remeningDurationDay: number;
-
+  AverageRating: number;
   // Pricing
   monthlyPrice: number;
   yearlyPrice: number;
