@@ -21,7 +21,7 @@ export const createCheckoutSession = async (payload: IPayload) => {
     line_items: [
       {
         price_data: {
-          currency: 'eur',
+          currency: 'usd',
           product_data: {
             name: payload?.product?.name,
           },
@@ -58,7 +58,6 @@ export const createCheckoutSession = async (payload: IPayload) => {
   });
   return paymentGatewayData;
 };
-
 
 // Overloads
 export function initializeMonthlyData(key: 'income'): MonthlyIncome[];
