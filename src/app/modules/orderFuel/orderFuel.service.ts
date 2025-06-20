@@ -14,6 +14,8 @@ import { IPackage } from '../packages/packages.interface';
 import { User } from '../user/user.models';
 import dayjs from 'dayjs';
 import { CouponModel } from '../coupon/coupon.models';
+import { notificationServices } from '../notification/notification.service';
+import { modeType } from '../notification/notification.interface';
 
 const MILES_TO_METERS = 1609.34;
 
@@ -443,7 +445,10 @@ const getorderFuelByUserId = async (
   const queryBuilder = new QueryBuilder(
     orderFuel
       .find({ userId })
-      .populate([{ path: 'userId' }, { path: 'driverId', populate:[{path:"reviews"}] }]),
+      .populate([
+        { path: 'userId' },
+        { path: 'driverId', populate: [{ path: 'reviews' }] },
+      ]),
     query,
   )
     .search(['location', 'fuelType'])
@@ -464,6 +469,15 @@ const updateorderFuel = async (id: string, payload: Partial<IOrderFuel>) => {
   const result = await orderFuel.findByIdAndUpdate(id, payload, { new: true });
   if (!result) {
     throw new AppError(httpStatus.BAD_REQUEST, 'Order update failed');
+  }
+  if (result?.driverId) {
+    await notificationServices.insertNotificationIntoDb({
+      receiver: result?.driverId,
+      message: 'You have a new order request',
+      description: `Your have a new tour request for "${result?.orderType}".`,
+      refference: result._id,
+      model_type: modeType.fuelOrder,
+    });
   }
   return result;
 };

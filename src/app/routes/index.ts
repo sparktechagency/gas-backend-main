@@ -28,6 +28,7 @@ import { checklistRoutes } from '../modules/checklist/checklist.route';
 import { messagesRoutes } from '../modules/messages/messages.route';
 import { chatRoutes } from '../modules/chat/chat.route';
 import { optionalTipRoutes } from '../modules/optionalTip/optionalTip.route';
+import { imageUploadRoutes } from '../modules/imageUpload/imageUpload.route';
 
 const router = Router();
 const moduleRoutes = [
@@ -147,6 +148,14 @@ const moduleRoutes = [
     path: '/optionalTip',
     route: optionalTipRoutes,
   },
+  {
+    path: '/imageUpload',
+    route: imageUploadRoutes,
+  },
+  // {
+  //   path: '/imageUpload1',
+  //   route: imageUploadRoutes1,
+  // },
 ];
 moduleRoutes.forEach(route => router.use(route.path, route.route));
 
