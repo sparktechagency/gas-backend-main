@@ -1,25 +1,35 @@
 // src/modules/coupon/coupon.service.ts
 import { Types } from 'mongoose';
 import { ICoupon } from './coupon.interface';
-import { CouponDocument, CouponModel } from './coupon.models';
+import { CouponModel } from './coupon.models';
+import AppError from '../../error/AppError';
+import httpStatus from 'http-status';
 
-const createCoupon = async (payload: ICoupon): Promise<CouponDocument> => {
+const createCoupon = async (payload: ICoupon): Promise<ICoupon> => {
   return CouponModel.create(payload);
 };
 
-const getAllCoupons = async (): Promise<CouponDocument[]> => {
+const getAllCoupons = async (): Promise<ICoupon[]> => {
   return CouponModel.find().populate('service').sort({ createdAt: -1 });
 };
 
-const getCouponById = async (id: string): Promise<CouponDocument | null> => {
+const getCouponById = async (id: string): Promise<ICoupon | null> => {
   if (!Types.ObjectId.isValid(id)) return null;
   return CouponModel.findById(id);
+};
+const checkCouponCode = async (code: string): Promise<ICoupon | null> => {
+  const coupon = await CouponModel.findByCouponCode(code);
+  if (!coupon) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'Coupon not found');
+  }
+
+  return coupon;
 };
 
 const updateCoupon = async (
   id: string,
   payload: Partial<ICoupon>,
-): Promise<CouponDocument | null> => {
+): Promise<ICoupon | null> => {
   if (!Types.ObjectId.isValid(id)) return null;
   return CouponModel.findByIdAndUpdate(id, payload, {
     new: true,
@@ -27,7 +37,7 @@ const updateCoupon = async (
   });
 };
 
-const deleteCoupon = async (id: string): Promise<CouponDocument | null> => {
+const deleteCoupon = async (id: string): Promise<ICoupon | null> => {
   if (!Types.ObjectId.isValid(id)) return null;
   return CouponModel.findByIdAndDelete(id);
 };
@@ -38,4 +48,5 @@ export const couponService = {
   getCouponById,
   updateCoupon,
   deleteCoupon,
+  checkCouponCode,
 };
