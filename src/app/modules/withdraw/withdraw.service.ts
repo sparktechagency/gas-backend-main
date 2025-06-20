@@ -5,6 +5,7 @@ import httpStatus from 'http-status';
 import mongoose from 'mongoose';
 import { User } from '../user/user.models';
 import { Withdraw } from './withdraw.models';
+import QueryBuilder from '../../builder/QueryBuilder';
 
 // const createwithdraw = async (payload: Iwithdraw) => {
 //   const user = await User.findById(payload.userId);
@@ -45,8 +46,20 @@ const createwithdraw = async (payload: Iwithdraw) => {
   return withdraw;
 };
 
-const getAllwithdraw = async () => {
-  return Withdraw.find().populate('userId');
+const getAllwithdraw = async (query: Record<string, any>) => {
+  const queryBuilder = new QueryBuilder(
+    Withdraw.find().populate('userId'),
+    query,
+  )
+    .search(['withdrawAmount', 'status']) // optional: add searchable fields if applicable
+    .filter()
+    .paginate()
+    .sort()
+    .fields();
+
+  const data = await queryBuilder.modelQuery;
+  const meta = await queryBuilder.countTotal();
+  return { data, meta };
 };
 
 const getwithdrawById = async (id: string) => {
