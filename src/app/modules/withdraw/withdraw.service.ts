@@ -51,7 +51,7 @@ const getAllwithdraw = async (query: Record<string, any>) => {
     Withdraw.find().populate('userId'),
     query,
   )
-    .search(['withdrawAmount', 'status']) // optional: add searchable fields if applicable
+    .search(['status']) // optional: add searchable fields if applicable
     .filter()
     .paginate()
     .sort()
