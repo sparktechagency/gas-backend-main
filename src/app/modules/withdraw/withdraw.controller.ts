@@ -16,8 +16,8 @@ const createwithdraw = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-const getAllwithdraw = catchAsync(async (_req: Request, res: Response) => {
-  const result = await withdrawService.getAllwithdraw();
+const getAllwithdraw = catchAsync(async (req: Request, res: Response) => {
+  const result = await withdrawService.getAllwithdraw(req.query);
   sendResponse(res, {
     statusCode: 200,
     success: true,
