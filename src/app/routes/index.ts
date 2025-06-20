@@ -29,6 +29,7 @@ import { messagesRoutes } from '../modules/messages/messages.route';
 import { chatRoutes } from '../modules/chat/chat.route';
 import { optionalTipRoutes } from '../modules/optionalTip/optionalTip.route';
 import { imageUploadRoutes } from '../modules/imageUpload/imageUpload.route';
+import { imageUploadSecondRoutes } from '../modules/imageUploadSecond/imageUploadSecond.route';
 
 const router = Router();
 const moduleRoutes = [
@@ -152,10 +153,10 @@ const moduleRoutes = [
     path: '/imageUpload',
     route: imageUploadRoutes,
   },
-  // {
-  //   path: '/imageUpload1',
-  //   route: imageUploadRoutes1,
-  // },
+  {
+    path: '/imageUploadSecond',
+    route: imageUploadSecondRoutes,
+  },
 ];
 moduleRoutes.forEach(route => router.use(route.path, route.route));
 
