@@ -1087,8 +1087,8 @@ const dashboardData = async (query: Record<string, any>) => {
       earnings[0]?.totalEarnings[0]?.total) ||
     0;
 
-  const totalMember = await User.countDocuments({ role: USER_ROLE?.user });
-  const totalAdministrator = await User.countDocuments({
+  const totalUser = await User.countDocuments({ role: USER_ROLE?.user });
+  const totalDriver = await User.countDocuments({
     role: USER_ROLE?.driver,
   });
 
@@ -1176,16 +1176,16 @@ const dashboardData = async (query: Record<string, any>) => {
 
   return {
     totalUsers: usersData[0]?.totalUsers[0]?.count || 0,
-    totalMember,
-    totalAdministrator,
-    // transitionData,
+    totalUser,
+    totalDriver,
+    transitionData,
     totalIncome: totalEarnings,
 
     // toDayIncome: todayEarnings,
 
-    // monthlyIncome: formattedMonthlyIncome,
+    monthlyIncome: formattedMonthlyIncome,
     monthlyUsers: formattedMonthlyUsers,
-    // userDetails: usersData[0]?.userDetails,
+    userDetails: usersData[0]?.userDetails,
   };
 };
 
