@@ -21,6 +21,6 @@ router.patch('/update/:id', imageUploadController.updateimageUpload);
 router.delete('/:id', imageUploadController.deleteimageUpload);
 
 // router.get('/:id', imageUploadController.getimageUpload);
-// router.get('/', imageUploadController.getimageUpload);
+router.get('/', imageUploadController.getAllimageUpload);
 
 export const imageUploadRoutes = router;

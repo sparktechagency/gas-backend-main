@@ -35,10 +35,51 @@ const createimageUpload = async (
   }
   return result;
 };
-const getAllimageUpload = async () => {};
-const getimageUploadById = async () => {};
-const updateimageUpload = async () => {};
-const deleteimageUpload = async () => {};
+const getAllimageUpload = async (): Promise<IImageUpload[]> => {
+  return await ImageUpload.find();
+};
+
+const getimageUploadById = async (id: string): Promise<IImageUpload | null> => {
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'Invalid imageUpload ID');
+  }
+  const result = await ImageUpload.findById(id);
+  if (!result) {
+    throw new AppError(httpStatus.NOT_FOUND, 'ImageUpload not found');
+  }
+  return result;
+};
+
+const updateimageUpload = async (
+  id: string,
+  payload: Partial<IImageUpload>,
+): Promise<IImageUpload | null> => {
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'Invalid imageUpload ID');
+  }
+
+  const updated = await ImageUpload.findByIdAndUpdate(id, payload, {
+    new: true,
+  });
+  if (!updated) {
+    throw new AppError(httpStatus.NOT_FOUND, 'ImageUpload not found');
+  }
+
+  return updated;
+};
+
+const deleteimageUpload = async (id: string): Promise<IImageUpload | null> => {
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'Invalid imageUpload ID');
+  }
+
+  const deleted = await ImageUpload.findByIdAndDelete(id);
+  if (!deleted) {
+    throw new AppError(httpStatus.NOT_FOUND, 'ImageUpload not found');
+  }
+
+  return deleted;
+};
 
 export const ImageUploadService = {
   createimageUpload,
