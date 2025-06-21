@@ -45,7 +45,7 @@ const createUser = async (payload: IUser): Promise<IUser> => {
 
 const getAllUser = async (query: Record<string, any>) => {
   const userModel = new QueryBuilder(User.find(), query)
-    .search(['name', 'email', 'phoneNumber', 'status'])
+    .search(['fullname', 'email', 'phoneNumber', 'status'])
     .filter()
     .paginate()
     .sort();

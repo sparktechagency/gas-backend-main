@@ -1138,33 +1138,9 @@ const dashboardData = async (query: DashboardQuery): Promise<DashboardData> => {
   };
 };
 
-const getAllPayments = async () => {
-  // Ensure that year and month are valid numbers
-  // const parsedYear = Number(year);
-  // const parsedMonth = Number(month);
-
-  // if (
-  //   isNaN(parsedYear) ||
-  //   isNaN(parsedMonth) ||
-  //   parsedMonth < 0 ||
-  //   parsedMonth > 11
-  // ) {
-  //   throw new AppError(httpStatus.BAD_REQUEST, 'Invalid year or month');
-  // }
-
-  // console.log('Parsed year:', parsedYear, 'Parsed month:', parsedMonth); // Debugging logs
-
-  // const startDate = new Date(parsedYear, parsedMonth, 1); // Start of the given month
-  // const endDate = new Date(parsedYear, parsedMonth + 1, 1); // Start of the next month
-
-  // if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
-  //   throw new AppError(httpStatus.BAD_REQUEST, 'Invalid date range');
-  // }
-
-  const result = await Payment.find({ isPaid: true })
-    // createdAt: { $gte: startDate, $lt: endDate }, // Payments within the month
-    .populate('user');
-
+const getAllPayments = async () => { 
+  const result = await Payment.find({ isPaid: true }) 
+    .populate('user'); 
   return result;
 };
 
@@ -1227,6 +1203,13 @@ const deletePayments = async (id: string) => {
   }
   return deletedPayment;
 };
+
+const refundPayment = async(id:string)=>{
+  const payment = await Payment.findById(id);
+  if (!payment) {
+    throw new AppError(httpStatus.NOT_FOUND, 'Payment not found');
+  }
+}
 
 // const generateInvoice = async (payload: any) => {
 //   const existingInvoice = await invoice
