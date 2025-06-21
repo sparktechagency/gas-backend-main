@@ -180,6 +180,7 @@ const confirmPayment = async (query: Record<string, any>) => {
       }
 
       payment.isPaid = true;
+      payment.status = 'paid';
       payment.paymentIntentId = paymentIntentId;
       await payment.save({ session });
 
@@ -199,6 +200,7 @@ const confirmPayment = async (query: Record<string, any>) => {
       }
 
       payment.isPaid = true;
+      payment.status = 'paid';
       payment.paymentIntentId = paymentIntentId;
       await payment.save({ session });
 
@@ -221,7 +223,7 @@ const confirmPayment = async (query: Record<string, any>) => {
     if (isSubscription) {
       const updatedPayment = await Payment.findByIdAndUpdate(
         paymentId,
-        { isPaid: true, paymentIntentId },
+        { isPaid: true, status: 'paid', paymentIntentId },
         { new: true, session },
       ).populate('user');
 
@@ -636,22 +638,30 @@ const deletePayments = async (id: string) => {
   return deletedPayment;
 };
 
-const refundPayment = async (id: string) => {
+const refundPayment = async (id: string): Promise<void> => {
   const payment = await Payment.findById(id);
-  if (!payment || payment?.paymentType !== PAYMENT_TYPE.order) {
+
+  if (!payment || payment.paymentType !== PAYMENT_TYPE.order) {
     throw new AppError(httpStatus.NOT_FOUND, 'Payment not found');
+  }
+  if (!payment?.paymentIntentId) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'Payment intent ID not found');
+  }
+
+  if (payment.status === 'refunded') {
+    throw new AppError(httpStatus.BAD_REQUEST, 'Payment already refunded');
   }
 
   try {
-    return await stripe.refunds.create({
-      payment_intent: payment?.paymentIntentId,
-      amount: Math.round(payment?.amount) * 100, // Convert to cents
+    await stripe.refunds.create({
+      payment_intent: payment.paymentIntentId,
+      amount: Math.round(payment.amount * 100), // Convert to cents
     });
-  } catch (error: any) {
-    throw new AppError(
-      httpStatus.BAD_REQUEST,
-      error?.message || 'Refund failed',
-    );
+
+    await Payment.findByIdAndUpdate(id, { status: 'refunded' });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Refund failed';
+    throw new AppError(httpStatus.BAD_REQUEST, message);
   }
 };
 

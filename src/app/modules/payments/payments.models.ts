@@ -20,6 +20,11 @@ const PaymentSchema = new Schema<IPayment>(
       type: Schema.Types.ObjectId,
       ref: 'Tip',
     },
+    status: {
+      type: String,
+      enum: ['pending', 'paid', 'failed', 'refunded'],
+      default: 'pending',
+    },
     paymentType: {
       type: String,
       enum: ['subscription', 'order', 'tip'],

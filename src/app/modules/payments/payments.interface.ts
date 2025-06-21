@@ -10,6 +10,7 @@ export interface IPayment {
   subscription: ObjectId | ISubscriptions;
   orderFuelId: ObjectId | IOrderFuel;
   paymentType: string; // 'subscription' | 'order' | 'tip'
+  status:"pending" | "paid" | "failed" | "refunded";
   optionalTipId: ObjectId | ITip;
   amount: number;
   tranId: string;
