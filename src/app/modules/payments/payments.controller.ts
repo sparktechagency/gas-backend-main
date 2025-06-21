@@ -122,6 +122,16 @@ const getPaymentsById = catchAsync(async (req: Request, res: Response) => {
     message: 'Payment retrieved successfully',
   });
 });
+const refundPayment = catchAsync(async (req: Request, res: Response) => {
+  const result = await paymentsService.refundPayment(req.params.id); // Assume this service method exists
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    data: result,
+    message: 'Payment refund successfully',
+  });
+});
 
 // const generateInvoice = catchAsync(async (req: Request, res: Response) => {
 //   const { id } = req.params;
@@ -233,4 +243,5 @@ export const paymentsController = {
   Subscriptioncheckout,
   subscriptionConfirmPayment,
   optionalTipcheckout,
+  refundPayment,
 };

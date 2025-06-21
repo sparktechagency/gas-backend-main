@@ -34,6 +34,7 @@ const userSchema: Schema<IUser> = new Schema(
     },
     phoneNumber: {
       type: String,
+      max:14,
       default: null,
     },
     password: {

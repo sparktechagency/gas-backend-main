@@ -48,6 +48,11 @@ router.get('/earnings', auth(USER_ROLE.admin), paymentsController.getEarnings);
 // router.get('/dashboard-data', paymentsController.);
 // router.post('/', paymentsController.createPayments);
 
+router.patch(
+  '/refund/:id',
+  auth(USER_ROLE.admin),
+  paymentsController.refundPayment,
+);
 router.patch('/:id', auth(USER_ROLE.admin), paymentsController.updatePayments);
 
 router.delete('/:id', auth(USER_ROLE.admin), paymentsController.deletePayments);

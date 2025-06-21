@@ -9,12 +9,14 @@ export interface IPayment {
   user: ObjectId | IUser;
   subscription: ObjectId | ISubscriptions;
   orderFuelId: ObjectId | IOrderFuel;
+  paymentType: string; // 'subscription' | 'order' | 'tip'
   optionalTipId: ObjectId | ITip;
   amount: number;
   tranId: string;
   paymentIntentId: string;
   isPaid: boolean;
   isDeleted: boolean;
+  stripeChId: string;
   createdAt?: Date;
   updatedAt?: Date;
 }

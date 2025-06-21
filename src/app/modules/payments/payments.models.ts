@@ -20,6 +20,15 @@ const PaymentSchema = new Schema<IPayment>(
       type: Schema.Types.ObjectId,
       ref: 'Tip',
     },
+    paymentType: {
+      type: String,
+      enum: ['subscription', 'order', 'tip'],
+      default: 'cash',
+    },
+    paymentIntentId: {
+      type: String,
+      default: null,
+    },
     amount: {
       type: Number,
       min: 0,
