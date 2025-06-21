@@ -109,7 +109,7 @@ const userSchema: Schema<IUser> = new Schema(
       type: String,
     },
     reviews:[{type:Schema.Types.ObjectId, ref:"Review"}],
-    avgRatings:{
+    avgRating:{
       type:Number,
       default:0
     },
