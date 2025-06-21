@@ -7,24 +7,7 @@ import { User } from '../user/user.models';
 import { Withdraw } from './withdraw.models';
 import QueryBuilder from '../../builder/QueryBuilder';
 
-// const createwithdraw = async (payload: Iwithdraw) => {
-//   const user = await User.findById(payload.userId);
-//   if (!user) {
-//     throw new AppError(httpStatus.NOT_FOUND, 'User not found');
-//   }
-
-//   if ((user.totalEarning || 0) < payload.withdrawAmount) {
-//     throw new AppError(httpStatus.BAD_REQUEST, 'Insufficient balance');
-//   }
-
-//   const withdraw = await Withdraw.create(payload);
-
-//   // Subtract from totalEarning
-//   user.totalEarning = (user.totalEarning || 0) - payload.withdrawAmount;
-//   await user.save();
-
-//   return withdraw;
-// };
+ 
 
 const createwithdraw = async (payload: Iwithdraw) => {
   const user = await User.findById(payload.userId);

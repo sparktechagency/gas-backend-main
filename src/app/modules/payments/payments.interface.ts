@@ -23,7 +23,7 @@ export type ISubscriptionsModel = Model<IPayment, Record<string, unknown>>;
 
 export interface DashboardQuery {
   incomeYear?: number;
-  JoinYear?: number;
+  joinYear?: number;
   role?: string;
 }
 
@@ -40,7 +40,7 @@ export interface MonthlyUsers {
 export interface DashboardData {
   totalUsers: number;
   totalCustomers: number;
-  totalDriver: number; 
+  totalDriver: number;
   totalIncome: number;
   toDayIncome: number;
   monthlyIncome: MonthlyIncome[];

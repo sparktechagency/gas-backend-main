@@ -999,7 +999,7 @@ const getEarnings = async () => {
 const dashboardData = async (query: DashboardQuery): Promise<DashboardData> => {
   // Normalize query parameters
   const incomeYear = query.incomeYear || moment().year();
-  const userYear = query.JoinYear || moment().year();
+  const userYear = query.joinYear || moment().year();
   const roleFilter = query.role
     ? { role: query.role }
     : { role: { $in: [USER_ROLE.user, USER_ROLE.driver] } };

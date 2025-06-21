@@ -283,9 +283,9 @@ const createorderFuel = async (payload: IOrderFuel) => {
 
   // Step 5.2: Apply coupon discount for non-subscribers
   if (!isSubscriber && payload.cuponCode) {
-    const coupon = await CouponModel.findOne({
-      couponCode: payload.cuponCode.toUpperCase(),
-    });
+    const coupon = await CouponModel.findByCouponCode(
+      payload.cuponCode.toUpperCase(),
+    );
 
     if (!coupon) {
       throw new AppError(httpStatus.BAD_REQUEST, 'Invalid coupon code');
