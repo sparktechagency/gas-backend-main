@@ -1,13 +1,19 @@
 import Stripe from 'stripe';
 import config from '../../config';
-import { IPayment } from './payments.interface';
+import {
+  DashboardData,
+  DashboardQuery,
+  IPayment,
+  MonthlyIncome,
+  MonthlyUsers,
+} from './payments.interface';
 import { ISubscriptions } from '../subscription/subscription.interface';
 import Subscription from '../subscription/subscription.models';
 import AppError from '../../error/AppError';
 import httpStatus from 'http-status';
 import Payment from './payments.models';
 import { User } from '../user/user.models';
-import { createCheckoutSession } from './payments.utils';
+import { createCheckoutSession, initializeMonthlyData } from './payments.utils';
 import { now, startSession } from 'mongoose';
 import { IPackage } from '../packages/packages.interface';
 import { notificationServices } from '../notification/notification.service';
@@ -990,7 +996,16 @@ const getEarnings = async () => {
 //   };
 // };
 
-const dashboardData = async (query: Record<string, any>) => {
+const dashboardData = async (query: DashboardQuery): Promise<DashboardData> => {
+  // Normalize query parameters
+  const incomeYear = query.incomeYear || moment().year();
+  const userYear = query.JoinYear || moment().year();
+  const roleFilter = query.role
+    ? { role: query.role }
+    : { role: { $in: [USER_ROLE.user, USER_ROLE.driver] } };
+
+  console.log(roleFilter);
+  // Aggregate user data
   const usersData = await User.aggregate([
     {
       $facet: {
@@ -998,194 +1013,112 @@ const dashboardData = async (query: Record<string, any>) => {
           { $match: { 'verification.status': true } },
           { $count: 'count' },
         ],
-        userDetails: [
-          { $match: { role: { $ne: USER_ROLE.admin } } },
+        totalDrivers: [
+          { $match: { 'verification.status': true, role: USER_ROLE.driver } },
+          { $count: 'count' },
+        ],
+        totalCustomers: [
+          { $match: { 'verification.status': true, role: USER_ROLE.user } },
+          { $count: 'count' },
+        ],
+        monthlyUsers: [
           {
-            $project: {
-              _id: 1,
-              name: 1,
-              email: 1,
-              coin: 1,
-              role: 1,
-              referenceId: 1,
-              createdAt: 1,
+            $match: {
+              'verification.status': true,
+              ...roleFilter,
+              createdAt: {
+                $gte: moment().year(userYear).startOf('year').toDate(),
+                $lte: moment().year(userYear).endOf('year').toDate(),
+              },
             },
           },
           {
-            $sort: { createdAt: -1 },
+            $group: {
+              _id: { month: { $month: '$createdAt' } },
+              total: { $sum: 1 },
+            },
           },
-          {
-            $limit: 15,
-          },
+          { $sort: { '_id.month': 1 } },
         ],
       },
     },
-  ]);
+  ]).then(data => data[0]);
 
-  // const today = moment().startOf('day');
-
-  // Calculate today's income
+  // Aggregate payment data
   const earnings = await Payment.aggregate([
     {
-      $match: {
-        isPaid: true,
-      },
+      $match: { isPaid: true },
     },
     {
       $facet: {
         totalEarnings: [
           {
+            $group: { _id: null, total: { $sum: '$amount' } },
+          },
+        ],
+        toDayEarnings: [
+          {
+            $match: {
+              createdAt: {
+                $gte: moment().startOf('day').toDate(),
+                $lte: moment().endOf('day').toDate(),
+              },
+            },
+          },
+          {
+            $group: { _id: null, total: { $sum: '$amount' } },
+          },
+        ],
+        monthlyIncome: [
+          {
+            $match: {
+              createdAt: {
+                $gte: moment().year(incomeYear).startOf('year').toDate(),
+                $lte: moment().year(incomeYear).endOf('year').toDate(),
+              },
+            },
+          },
+          {
             $group: {
-              _id: null,
-              total: { $sum: '$amount' },
+              _id: { month: { $month: '$createdAt' } },
+              income: { $sum: '$amount' },
             },
           },
-        ],
-        allData: [
-          {
-            $lookup: {
-              from: 'users',
-              localField: 'user',
-              foreignField: '_id',
-              as: 'userDetails',
-            },
-          },
-          {
-            $lookup: {
-              from: 'subscription',
-              localField: 'subscription',
-              foreignField: '_id',
-              as: 'subscription',
-            },
-          },
-          {
-            $project: {
-              user: { $arrayElemAt: ['$userDetails', 0] },
-              subscription: { $arrayElemAt: ['$subscription', 0] },
-              amount: 1,
-              tranId: 1,
-              status: 1,
-              id: 1,
-              createdAt: 1,
-              updatedAt: 1,
-            },
-          },
-          {
-            $sort: { createdAt: -1 },
-          },
-          {
-            $limit: 10,
-          },
+          { $sort: { '_id.month': 1 } },
         ],
       },
     },
-  ]);
+  ]).then(data => data[0]);
 
-  const totalEarnings =
-    (earnings?.length > 0 &&
-      earnings[0]?.totalEarnings?.length > 0 &&
-      earnings[0]?.totalEarnings[0]?.total) ||
-    0;
+  // Extract user counts
+  const totalUsers = usersData.totalUsers[0]?.count || 0;
+  const totalDriver = usersData.totalDrivers[0]?.count || 0;
+  const totalCustomers = usersData.totalCustomers[0]?.count || 0;
 
-  const totalUser = await User.countDocuments({ role: USER_ROLE?.user });
-  const totalDriver = await User.countDocuments({
-    role: USER_ROLE?.driver,
-  });
-
-  const transitionData = earnings[0]?.allData || [];
-
-  // Calculate monthly income
-  const year = query.incomeYear ? query.incomeYear : moment().year();
-  const startOfYear = moment().year(year).startOf('year');
-  const endOfYear = moment().year(year).endOf('year');
-
-  const monthlyIncome = await Payment.aggregate([
-    {
-      $match: {
-        isPaid: true,
-        createdAt: {
-          $gte: startOfYear.toDate(),
-          $lte: endOfYear.toDate(),
-        },
-      },
+  // Format monthly income
+  const monthlyIncome = initializeMonthlyData('income') as MonthlyIncome[];
+  earnings.monthlyIncome.forEach(
+    ({ _id, income }: { _id: { month: number }; income: number }) => {
+      monthlyIncome[_id.month - 1].income = Math.round(income);
     },
-    {
-      $group: {
-        _id: { month: { $month: '$createdAt' } },
-        income: { $sum: '$amount' },
-      },
+  );
+
+  // Format monthly users
+  const monthlyUsers = initializeMonthlyData('total') as MonthlyUsers[];
+  usersData.monthlyUsers.forEach(
+    ({ _id, total }: { _id: { month: number }; total: number }) => {
+      monthlyUsers[_id.month - 1].total = Math.round(total);
     },
-    {
-      $sort: { '_id.month': 1 },
-    },
-  ]);
-
-  // Format monthly income to have an entry for each month
-  const formattedMonthlyIncome = Array.from({ length: 12 }, (_, index) => ({
-    month: moment().month(index).format('MMM'),
-    income: 0,
-  }));
-
-  monthlyIncome.forEach(entry => {
-    formattedMonthlyIncome[entry._id.month - 1].income = Math.round(
-      entry.income,
-    );
-  });
-
-  // Calculate monthly income
-  // JoinYear: '2022', role: ''
-  const userYear = query?.JoinYear ? query?.JoinYear : moment().year();
-  const startOfUserYear = moment().year(userYear).startOf('year');
-  const endOfUserYear = moment().year(userYear).endOf('year');
-
-  const roleFilter = query.role
-    ? { role: query.role }
-    : { role: { $in: [USER_ROLE.user, USER_ROLE.driver] } };
-
-  const monthlyUser = await User.aggregate([
-    {
-      $match: {
-        'verification.status': true,
-        ...roleFilter, // Include both 'member' and 'administrator'
-        createdAt: {
-          $gte: startOfUserYear.toDate(),
-          $lte: endOfUserYear.toDate(),
-        },
-      },
-    },
-    {
-      $group: {
-        _id: { month: { $month: '$createdAt' } }, // Group by month
-        total: { $sum: 1 }, // Count users
-      },
-    },
-    {
-      $sort: { '_id.month': 1 }, // Ensure sorting from Jan-Dec
-    },
-  ]);
-  // return monthlyUser;
-  // Format monthly income to have an entry for each month
-  const formattedMonthlyUsers = Array.from({ length: 12 }, (_, index) => ({
-    month: moment().month(index).format('MMM'),
-    total: 0,
-  }));
-
-  monthlyUser.forEach(entry => {
-    formattedMonthlyUsers[entry._id.month - 1].total = Math.round(entry.total);
-  });
+  );
 
   return {
-    totalUsers: usersData[0]?.totalUsers[0]?.count || 0,
-    totalUser,
+    totalUsers,
+    totalCustomers,
     totalDriver,
-    transitionData,
-    totalIncome: totalEarnings,
-
-    // toDayIncome: todayEarnings,
-
-    monthlyIncome: formattedMonthlyIncome,
-    monthlyUsers: formattedMonthlyUsers,
-    userDetails: usersData[0]?.userDetails,
+    toDayIncome: earnings.toDayEarnings[0]?.total || 0,
+    totalIncome: earnings.totalEarnings[0]?.total || 0,
+    monthlyIncome,
+    monthlyUsers,
   };
 };
 

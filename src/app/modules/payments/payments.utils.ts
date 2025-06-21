@@ -1,5 +1,7 @@
 import Stripe from 'stripe';
 import config from '../../config';
+import { MonthlyIncome, MonthlyUsers } from './payments.interface';
+import moment from 'moment';
 
 const stripe: Stripe = new Stripe(config.stripe?.stripe_api_secret as string, {
   apiVersion: '2024-06-20',
@@ -56,3 +58,18 @@ export const createCheckoutSession = async (payload: IPayload) => {
   });
   return paymentGatewayData;
 };
+
+
+// Overloads
+export function initializeMonthlyData(key: 'income'): MonthlyIncome[];
+export function initializeMonthlyData(key: 'total'): MonthlyUsers[];
+
+// Implementation
+export function initializeMonthlyData(
+  key: 'income' | 'total',
+): (MonthlyIncome | MonthlyUsers)[] {
+  return Array.from({ length: 12 }, (_, index) => ({
+    month: moment().month(index).format('MMM'),
+    [key]: 0,
+  })) as any; // Safe because overloads control output type
+}

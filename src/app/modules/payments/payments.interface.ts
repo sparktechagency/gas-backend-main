@@ -20,3 +20,29 @@ export interface IPayment {
 }
 
 export type ISubscriptionsModel = Model<IPayment, Record<string, unknown>>;
+
+export interface DashboardQuery {
+  incomeYear?: number;
+  JoinYear?: number;
+  role?: string;
+}
+
+export interface MonthlyIncome {
+  month: string;
+  income: number;
+}
+
+export interface MonthlyUsers {
+  month: string;
+  total: number;
+}
+
+export interface DashboardData {
+  totalUsers: number;
+  totalCustomers: number;
+  totalDriver: number; 
+  totalIncome: number;
+  toDayIncome: number;
+  monthlyIncome: MonthlyIncome[];
+  monthlyUsers: MonthlyUsers[];
+}
