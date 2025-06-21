@@ -34,6 +34,16 @@ const updateCoupon = catchAsync(async (req: Request, res: Response) => {
   res.status(200).json({ success: true, data: result });
 });
 
+const checkCouponCode = catchAsync(async (req: Request, res: Response) => {
+  const result = await couponService.checkCouponCode(req.params.code);
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: 'coupon data get successfully',
+    data: result,
+  });
+});
 const deleteCoupon = catchAsync(async (req: Request, res: Response) => {
   const result = await couponService.deleteCoupon(req.params.id);
   sendResponse(res, {
@@ -50,4 +60,5 @@ export const couponController = {
   getCouponById,
   updateCoupon,
   deleteCoupon,
+  checkCouponCode,
 };

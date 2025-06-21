@@ -1,12 +1,9 @@
 // src/modules/coupon/coupon.model.ts
-import { Schema, model, Document } from 'mongoose';
-import { ICoupon } from './coupon.interface';
+import { Schema, model } from 'mongoose';
+import { ICoupon, ICouponModel } from './coupon.interface';
 
-export interface CouponDocument extends ICoupon, Document {}
-
-const couponSchema = new Schema<CouponDocument>(
+const couponSchema: Schema<ICoupon> = new Schema<ICoupon>(
   {
-    // applicableOn: { type: String, required: true, trim: true },
     couponName: { type: String, required: true, trim: true },
     expiryDate: { type: String, required: true }, // store as ISO string
     couponCode: {
@@ -17,13 +14,20 @@ const couponSchema = new Schema<CouponDocument>(
       trim: true,
     },
     discount: { type: Number, required: true, min: 0 },
+    isActive: { type: Boolean, default: true },
     service: {
       type: Schema.Types.Mixed,
       required: true,
       ref: 'Services',
     },
   },
-  { timestamps: true },
+  {
+    timestamps: true,
+  },
 );
 
-export const CouponModel = model<CouponDocument>('Coupon', couponSchema);
+couponSchema.statics.findByCouponCode = async function (code: string) {
+  return await CouponModel.findOne({ couponCode: code });
+};
+
+export const CouponModel = model<ICoupon, ICouponModel>('Coupon', couponSchema);
