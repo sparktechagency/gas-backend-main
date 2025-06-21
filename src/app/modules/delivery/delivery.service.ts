@@ -157,6 +157,7 @@ const updatedelivery = async (id: string, payload: Partial<Idelivery>) => {
   if (payload.status === 'delivered') {
     // 1) Find the Delivery so we can pull out its orderId, driver, etc.
     const existingDelivery = await Delivery.findById(id);
+    console.log('🚀 ~ updatedelivery ~ existingDelivery:', existingDelivery);
     if (!existingDelivery) {
       throw new AppError(
         httpStatus.BAD_REQUEST,
@@ -222,6 +223,14 @@ const updatedelivery = async (id: string, payload: Partial<Idelivery>) => {
       $inc: { totalEarning: totalEarned },
     });
 
+    if (deliveryRecord.status === 'delivered') {
+      //@ts-ignore
+      const io = global.socketio; 
+      if (io) {
+        const ver = 'orderDelivery::' + deliveryRecord?.orderId?.toString(); 
+        io.emit(ver, { success: true, data: deliveryRecord });
+      }
+    }
     return deliveryRecord;
   }
 
@@ -235,15 +244,6 @@ const updatedelivery = async (id: string, payload: Partial<Idelivery>) => {
       httpStatus.BAD_REQUEST,
       'Failed to update delivery record',
     );
-  }
-
-  if(result.status === 'delivered'){
-      //@ts-ignore
-  const io = global.socketio;
-  if (io) {
-    const ver = 'orderDeleverd::' + result?.orderId;
-    io.emit(ver, { success:true, data:result });
-  }
   }
   return result;
 };
