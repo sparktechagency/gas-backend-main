@@ -28,6 +28,7 @@ import Package from '../packages/packages.models';
 import QueryBuilder from '../../builder/QueryBuilder';
 import { orderFuel } from '../orderFuel/orderFuel.models';
 import { Tip } from '../optionalTip/optionalTip.models';
+import { Withdraw } from '../withdraw/withdraw.models';
 
 const stripe = new Stripe(config.stripe?.stripe_api_secret as string, {
   apiVersion: '2024-06-20',
@@ -1044,6 +1045,20 @@ const dashboardData = async (query: DashboardQuery): Promise<DashboardData> => {
     },
   ]).then(data => data[0]);
 
+  //total payout
+  const totalPayout = await Withdraw.aggregate([
+    {
+      $match: {
+        status: 'Approved',
+      },
+    },
+    {
+      $group: {
+        _id: null,
+        total: { $sum: '$withdrawAmount' },
+      },
+    },
+  ]).then(data => (data.length > 0 ? data[0].total : 0));
   // Aggregate payment data
   const earnings = await Payment.aggregate([
     {
@@ -1115,6 +1130,7 @@ const dashboardData = async (query: DashboardQuery): Promise<DashboardData> => {
     totalUsers,
     totalCustomers,
     totalDriver,
+    totalPayout,
     toDayIncome: earnings.toDayEarnings[0]?.total || 0,
     totalIncome: earnings.totalEarnings[0]?.total || 0,
     monthlyIncome,

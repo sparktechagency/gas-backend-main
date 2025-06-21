@@ -39,6 +39,7 @@ export interface MonthlyUsers {
 
 export interface DashboardData {
   totalUsers: number;
+  totalPayout: number;
   totalCustomers: number;
   totalDriver: number;
   totalIncome: number;
