@@ -14,15 +14,6 @@ import Chat from './app/modules/chat/chat.models';
 import * as socket from './socket';
 import { callbackFn } from './app/utils/callbackFn';
 import { messagesService } from './app/modules/messages/messages.service';
-import { createClient } from 'redis';
-import { createAdapter } from '@socket.io/redis-adapter';
-import throttle from 'lodash.throttle';
-import { createLogger, transports, format } from 'winston';
-
-const logger = createLogger({
-  transports: [new transports.Console()],
-  format: format.combine(format.timestamp(), format.json()),
-});
 
 const initializeSocketIO = (server: HttpServer) => {
   const io = new Server(server, {
@@ -30,23 +21,6 @@ const initializeSocketIO = (server: HttpServer) => {
       origin: '*',
     },
   });
-
-  //----------------------Start Raids client-------------------------//
-
-  const pubClient = createClient({ url: 'redis://localhost:6379' });
-  const subClient = pubClient.duplicate();
-  Promise.all([pubClient.connect(), subClient.connect()])
-    .then(() => {
-      console.log('🚀 Both Redis clients connected');
-      io.adapter(createAdapter(pubClient, subClient));
-    })
-    .catch(err => {
-      console.error('❌ Failed to connect Redis clients:', err);
-    });
-
-  const locationThrottles = new Map<string, Function>();
-
-  //----------------------End Raids client-------------------------//
 
   // Online users
   const onlineUser = new Set();
@@ -165,46 +139,15 @@ const initializeSocketIO = (server: HttpServer) => {
           messageData: { latitude: number; longitude: number },
           callback: any,
         ) => {
-          const userId = user?._id?.toString();
           try {
-            if (!locationThrottles.has(userId)) {
-              const key = 'serverToSendLocation::' + user._id?.toString();
-              console.log(key)
-              locationThrottles.set(
-                userId,
-                throttle((data, cb) => {
-                  io.emit(key, data);
-                  callbackFn(cb, { success: true });
-                }, 1000), // 1 update per second
-              );
-            }
-            locationThrottles.get(userId)!(messageData, callback);
+            const data = messageData;
+            const key = 'serverToSendLocation::' + user._id?.toString();
+            return io.emit(key, data);
           } catch (error: any) {
-            logger.error(
-              `Location error for user ${userId}: ${error.message}`,
-              {
-                error,
-              },
-            );
-            callbackFn(callback, { success: false, message: error.message });
+            console.log('🚀 ~ error:', error);
           }
         },
       );
-      // socket.on(
-      //   'getLocation',
-      //   async (
-      //     messageData: { latitude: number; longitude: number },
-      //     callback: any,
-      //   ) => {
-      //     try {
-      //       const data = messageData;
-      //       const key = 'serverToSendLocation::' + user._id?.toString();
-      //       return io.emit(key, data);
-      //     } catch (error: any) {
-      //       console.log('🚀 ~ error:', error);
-      //     }
-      //   },
-      // );
       //----------------------chat list------------------------//
       socket.on('my-chat-list', async (data, callback) => {
         try {
