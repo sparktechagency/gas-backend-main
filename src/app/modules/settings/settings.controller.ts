@@ -15,7 +15,7 @@ const getSettingsData = catchAsync(async (req, res) => {
 
 const updateSettingsData = catchAsync(async (req, res) => {
   const payload = req.body;
-  const result = await settingsServices.updateSettingsData(payload);
+  const result = await settingsServices.updateSettingsData(payload, req.files);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
