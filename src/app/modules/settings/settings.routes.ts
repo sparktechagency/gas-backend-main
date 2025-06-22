@@ -3,6 +3,7 @@ import settingsController from './settings.controller';
 import multer, { memoryStorage } from 'multer';
 import auth from '../../middleware/auth';
 import { USER_ROLE } from '../user/user.constants';
+import parseData from '../../middleware/parseData';
 
 export const settingsRoutes = Router();
 const storage = memoryStorage();
@@ -17,5 +18,6 @@ settingsRoutes.put(
     { name: 'emergencyFuelBanner', maxCount: 1 },
     { name: 'discountBanner', maxCount: 1 },
   ]),
+  parseData(),
   settingsController.updateSettingsData,
 );
