@@ -12,7 +12,11 @@ const upload = multer({ storage });
 router.post(
   '/create-content',
   auth(USER_ROLE.super_admin, USER_ROLE.sub_admin, USER_ROLE.admin),
-  upload.fields([{ name: 'banner', maxCount: 5 }]),
+  upload.fields([
+    { name: 'banner', maxCount: 5 },
+    { name: 'emergencyFuelBanner', maxCount: 1 },
+    { name: 'discountBanner', maxCount: 1 },
+  ]),
   parseData(),
   // validateRequest(contentsValidator.createContentsZodSchema),
   contentsController.createContents,
@@ -21,7 +25,11 @@ router.post(
 router.put(
   '/',
   auth(USER_ROLE.super_admin, USER_ROLE.sub_admin, USER_ROLE.admin),
-  upload.fields([{ name: 'banner', maxCount: 5 }]),
+  upload.fields([
+    { name: 'banner', maxCount: 5 },
+    { name: 'emergencyFuelBanner', maxCount: 1 },
+    { name: 'discountBanner', maxCount: 1 },
+  ]),
   parseData(),
   contentsController.updateContents,
 );

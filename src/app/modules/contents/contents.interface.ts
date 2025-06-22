@@ -4,6 +4,8 @@ export interface IContents {
   deleteKey?: string[];
   _id?: string;
   createdBy: ObjectId;
+  discountBanner?: string;
+  emergencyFuelBanner?: string;
   aboutUs?: string;
   termsAndConditions?: string;
   banner: { key: string; url: string }[];

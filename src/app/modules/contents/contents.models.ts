@@ -21,6 +21,15 @@ const contentsSchema = new Schema<IContents>(
         url: { type: String, required: true },
       },
     ],
+    emergencyFuelBanner: {
+      type: String,
+      default: null,
+    },
+    discountBanner: {
+      type: String,
+      default: null,
+    },
+
     supports: {
       type: String,
     },

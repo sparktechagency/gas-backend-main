@@ -4,13 +4,14 @@ import AppError from '../../error/AppError';
 import Contents from './contents.models';
 import { IContents } from './contents.interface';
 import QueryBuilder from '../../builder/QueryBuilder';
-import { deleteManyFromS3, uploadManyToS3 } from '../../utils/s3';
+import { deleteManyFromS3, uploadManyToS3, uploadToS3 } from '../../utils/s3';
 import { UploadedFiles } from '../../interface/common.interface';
 
 // Create a new content
 const createContents = async (payload: IContents, files: any) => {
   if (files) {
-    const { banner } = files as UploadedFiles;
+    const { banner, emergencyFuelBanner, discountBanner } =
+      files as UploadedFiles;
 
     if (banner?.length) {
       const imgsArray: { file: any; path: string; key?: string }[] = [];
@@ -23,6 +24,20 @@ const createContents = async (payload: IContents, files: any) => {
       });
 
       payload.banner = await uploadManyToS3(imgsArray);
+    }
+
+    if (emergencyFuelBanner?.length) {
+      payload.emergencyFuelBanner = (await uploadToS3({
+        file: emergencyFuelBanner[0],
+        fileName: `images/banner/${emergencyFuelBanner[0].originalname}`,
+      })) as string;
+    }
+
+    if (discountBanner?.length) {
+      payload.discountBanner = (await uploadToS3({
+        file: discountBanner[0],
+        fileName: `images/banner/${discountBanner[0].originalname}`,
+      })) as string;
     }
   }
 
@@ -100,7 +115,8 @@ const updateContents = async (payload: Partial<IContents>, files: any) => {
   const update: any = { ...updateData };
 
   if (files) {
-    const { banner } = files as UploadedFiles;
+    const { banner, emergencyFuelBanner, discountBanner } =
+      files as UploadedFiles;
 
     if (banner?.length) {
       const imgsArray: { file: any; path: string; key?: string }[] = [];
@@ -113,6 +129,20 @@ const updateContents = async (payload: Partial<IContents>, files: any) => {
       );
 
       payload.banner = await uploadManyToS3(imgsArray);
+    }
+
+    if (emergencyFuelBanner?.length) {
+      payload.emergencyFuelBanner = (await uploadToS3({
+        file: emergencyFuelBanner[0],
+        fileName: `images/banner/${emergencyFuelBanner[0].originalname}`,
+      })) as string;
+    }
+
+    if (discountBanner?.length) {
+      payload.discountBanner = (await uploadToS3({
+        file: discountBanner[0],
+        fileName: `images/banner/${discountBanner[0].originalname}`,
+      })) as string;
     }
   }
 
