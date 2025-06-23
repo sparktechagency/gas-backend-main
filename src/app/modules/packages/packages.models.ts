@@ -28,7 +28,6 @@ const PackageSchema = new Schema<IPackage>(
     },
     yearlyPrice: {
       type: Number,
-      required: true,
       min: 0,
     },
 
@@ -42,7 +41,6 @@ const PackageSchema = new Schema<IPackage>(
     durationType: {
       type: String,
       enum: Object.values(durationType),
-      required: false,
     },
 
     // ───────────────────────────────────────────────────────
