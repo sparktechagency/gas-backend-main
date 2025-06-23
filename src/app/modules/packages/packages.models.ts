@@ -28,7 +28,6 @@ const PackageSchema = new Schema<IPackage>(
     },
     yearlyPrice: {
       type: Number,
-      min: 0,
     },
 
     // ───────────────────────────────────────────────────────
