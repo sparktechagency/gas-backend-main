@@ -5,3 +5,4 @@ logs/
 .vercel
 nn.ts
 bun.lock
+package-lock.json
