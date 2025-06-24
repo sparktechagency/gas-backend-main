@@ -93,7 +93,6 @@ const PackageSchema = new Schema<IPackage>(
     },
     exclusivePromotionsEarlyAccess: {
       type: Boolean,
-      required: true,
       default: false,
     },
   },
