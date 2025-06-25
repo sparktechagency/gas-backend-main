@@ -36,11 +36,18 @@ const stripe = new Stripe(config.stripe?.stripe_api_secret as string, {
 const checkout = async (payload: IPayment) => {
   const tranId = generateRandomString(10);
   let paymentData: IPayment;
-
+  console.log('🚀 ~ checkout ~ payload:', payload);
   if (payload?.couponCode) {
     const order = await orderFuel.findById(payload?.orderFuelId);
+    console.log('🚀 ~ checkout ~ order:', order);
     if (!order) {
       throw new AppError(httpStatus.NOT_FOUND, 'Order not found!');
+    }
+    if (order?.cuponCode) {
+      throw new AppError(
+        httpStatus.BAD_REQUEST,
+        'Coupon code already applied to this order',
+      );
     }
     const coupon = await CouponModel.findByCouponCode(payload?.couponCode);
     if (!coupon) {
@@ -72,6 +79,7 @@ const checkout = async (payload: IPayment) => {
     );
   }
   const order = await orderFuel.findById(payload?.orderFuelId);
+  console.log('🚀 ~ checkout ~ new Orders:', order);
   if (!order) {
     throw new AppError(httpStatus.NOT_FOUND, 'Order not found!');
   }
