@@ -68,11 +68,11 @@ const checkout = async (payload: IPayment) => {
         `This coupon is not valid for ${order.orderType} service`,
       );
     }
-    const discountAmount = (order.price * coupon.discount) / 100;
+    const discountAmount = (order.finalAmountOfPayment * coupon.discount) / 100;
     await orderFuel.findByIdAndUpdate(
       order._id,
       {
-        $inc: { price: -discountAmount },
+        $inc: { finalAmountOfPayment: -discountAmount },
         cuponCode: payload?.couponCode,
       },
       { new: true },
@@ -84,7 +84,7 @@ const checkout = async (payload: IPayment) => {
     throw new AppError(httpStatus.NOT_FOUND, 'Order not found!');
   }
   const user = await User.findById(payload?.user);
-  const amount = order.amount;
+  const amount = order.finalAmountOfPayment;
 
   // Check for existing unpaid payment for the order
   const existingPayment: IPayment | null = await Payment.findOne({
@@ -96,7 +96,7 @@ const checkout = async (payload: IPayment) => {
   if (existingPayment) {
     const updatedPayment = await Payment.findByIdAndUpdate(
       existingPayment._id,
-      { tranId, amount },
+      { tranId, finalAmountOfPayment: amount },
       { new: true },
     );
     paymentData = updatedPayment as IPayment;
