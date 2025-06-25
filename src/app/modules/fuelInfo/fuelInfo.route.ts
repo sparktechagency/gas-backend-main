@@ -13,8 +13,8 @@ router.get(
   fuelInfoController.getAllfuelInfoByZip,
 );
 router.delete('/:id', fuelInfoController.deletefuelInfo);
-router.get('/', auth(USER_ROLE.user), fuelInfoController.getAllfuelInfo);
-router.get('/', auth(USER_ROLE.user), fuelInfoController.getAllfuelInfo);
+// router.get('/', auth(USER_ROLE.user), fuelInfoController.getAllfuelInfo);
+// router.get('/', auth(USER_ROLE.user), fuelInfoController.getAllfuelInfo);
 
 // Fix: Use correct handlers
 router.get('/:id', fuelInfoController.getfuelInfoById);
