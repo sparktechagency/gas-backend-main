@@ -16,6 +16,7 @@ import dayjs from 'dayjs';
 import { CouponModel } from '../coupon/coupon.models';
 import { notificationServices } from '../notification/notification.service';
 import { modeType } from '../notification/notification.interface';
+import { CityExpansion } from '../cityExpansion/cityExpansion.models';
 
 const MILES_TO_METERS = 1609.34;
 
@@ -220,21 +221,33 @@ const createorderFuel = async (payload: IOrderFuel) => {
   }
 
   // Step 3: Location check (within 10 miles)
-  const nearbyLocation = await Location.findOne({
-    location: {
-      $near: {
-        $geometry: {
-          type: 'Point',
-          coordinates: payload.location.coordinates,
-        },
-        $maxDistance: 10 * MILES_TO_METERS,
-      },
-    },
+  // const nearbyLocation = await Location.findOne({
+  //   location: {
+  //     $near: {
+  //       $geometry: {
+  //         type: 'Point',
+  //         coordinates: payload.location.coordinates,
+  //       },
+  //       $maxDistance: 10 * MILES_TO_METERS,
+  //     },
+  //   },
+  // });
+  // if (!nearbyLocation) {
+  //   throw new AppError(
+  //     httpStatus.BAD_REQUEST,
+  //     'Service not available at this location. You must be within 10 miles of a service point.',
+  //   );
+  // }
+
+  const cityService = await CityExpansion.findOne({
+    coveredZipCodes: payload.zipCode, // Check if the zipCode is in the coveredZipCodes array
   });
-  if (!nearbyLocation) {
+
+  // If no city service is found, throw an error
+  if (!cityService) {
     throw new AppError(
       httpStatus.BAD_REQUEST,
-      'Service not available at this location. You must be within 10 miles of a service point.',
+      'Service not available at this location.',
     );
   }
 
