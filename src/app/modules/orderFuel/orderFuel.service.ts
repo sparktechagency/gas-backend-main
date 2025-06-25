@@ -281,35 +281,35 @@ const createorderFuel = async (payload: IOrderFuel) => {
     );
   }
 
-  // Step 5.2: Apply coupon discount for non-subscribers
-  if (!isSubscriber && payload.cuponCode) {
-    const coupon = await CouponModel.findByCouponCode(
-      payload.cuponCode.toUpperCase(),
-    );
+  // // Step 5.2: Apply coupon discount for non-subscribers
+  // if (!isSubscriber && payload.cuponCode) {
+  //   const coupon = await CouponModel.findByCouponCode(
+  //     payload.cuponCode.toUpperCase(),
+  //   );
 
-    if (!coupon) {
-      throw new AppError(httpStatus.BAD_REQUEST, 'Invalid coupon code');
-    }
+  //   if (!coupon) {
+  //     throw new AppError(httpStatus.BAD_REQUEST, 'Invalid coupon code');
+  //   }
 
-    const isExpired = dayjs().isAfter(dayjs(coupon.expiryDate));
-    if (isExpired) {
-      throw new AppError(httpStatus.BAD_REQUEST, 'Coupon has expired');
-    }
+  //   const isExpired = dayjs().isAfter(dayjs(coupon.expiryDate));
+  //   if (isExpired) {
+  //     throw new AppError(httpStatus.BAD_REQUEST, 'Coupon has expired');
+  //   }
 
-    // Optional: Check if the coupon applies to the current service type
-    if (
-      (coupon.service as any) !== 'ALL' &&
-      payload.orderType.toLowerCase() !== String(coupon.service).toLowerCase()
-    ) {
-      throw new AppError(
-        httpStatus.BAD_REQUEST,
-        `This coupon is not valid for ${payload.orderType} service`,
-      );
-    }
+  //   // Optional: Check if the coupon applies to the current service type
+  //   if (
+  //     (coupon.service as any) !== 'ALL' &&
+  //     payload.orderType.toLowerCase() !== String(coupon.service).toLowerCase()
+  //   ) {
+  //     throw new AppError(
+  //       httpStatus.BAD_REQUEST,
+  //       `This coupon is not valid for ${payload.orderType} service`,
+  //     );
+  //   }
 
-    const discountAmount = (finalAmountOfPayment * coupon.discount) / 100;
-    finalAmountOfPayment -= discountAmount;
-  }
+  //   const discountAmount = (finalAmountOfPayment * coupon.discount) / 100;
+  //   finalAmountOfPayment -= discountAmount;
+  // }
 
   // Step 6: Create the fuel order record
   const result = await orderFuel.create({
