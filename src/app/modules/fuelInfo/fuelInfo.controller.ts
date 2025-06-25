@@ -11,6 +11,11 @@ const createfuelInfo = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getAllfuelInfo = catchAsync(async (req: Request, res: Response) => {
+  const data = await fuelInfoService.getAllfuelInfo();
+  res.status(200).json({ status: 'success', results: data.length, data });
+});
+
+const getAllfuelInfoByZip = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user?.userId;
 
   // if (!userId) {
@@ -25,7 +30,7 @@ const getAllfuelInfo = catchAsync(async (req: Request, res: Response) => {
       .json({ status: 'fail', message: 'User zip code not found' });
   }
 
-  const data = await fuelInfoService.getAllfuelInfo(user.zipCode);
+  const data = await fuelInfoService.getAllfuelInfoByZip(user.zipCode);
 
   res.status(200).json({
     status: 'success',
@@ -70,4 +75,5 @@ export const fuelInfoController = {
   getfuelInfoById,
   updatefuelInfo,
   deletefuelInfo,
+  getAllfuelInfoByZip,
 };

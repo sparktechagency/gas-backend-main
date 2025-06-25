@@ -9,7 +9,11 @@ const createfuelInfo = async (
   return FuelInfoModel.create(payload);
 };
 
-const getAllfuelInfo = async (
+const getAllfuelInfo = async (): Promise<FuelInfoDocument[]> => {
+  return FuelInfoModel.find().sort({ createdAt: -1 });
+};
+
+const getAllfuelInfoByZip = async (
   userZipCode: string,
 ): Promise<FuelInfoDocument[]> => {
   return FuelInfoModel.find({ zipCode: userZipCode }).sort({ createdAt: -1 });
@@ -44,4 +48,5 @@ export const fuelInfoService = {
   getfuelInfoById,
   updatefuelInfo,
   deletefuelInfo,
+  getAllfuelInfoByZip,
 };
