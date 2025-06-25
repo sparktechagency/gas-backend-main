@@ -3,6 +3,7 @@ import { Request, Response } from 'express';
 import catchAsync from '../../utils/catchAsync';
 import { fuelInfoService } from './fuelInfo.service';
 import sendResponse from '../../utils/sendResponse';
+import { User } from '../user/user.models';
 
 const createfuelInfo = catchAsync(async (req: Request, res: Response) => {
   const data = await fuelInfoService.createfuelInfo(req.body);
@@ -10,8 +11,27 @@ const createfuelInfo = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getAllfuelInfo = catchAsync(async (req: Request, res: Response) => {
-  const data = await fuelInfoService.getAllfuelInfo();
-  res.status(200).json({ status: 'success', results: data.length, data });
+  const userId = req.user?.userId;
+
+  // if (!userId) {
+  //   return res.status(401).json({ status: 'fail', message: 'Unauthorized' });
+  // }
+
+  // Fetch user zip code
+  const user = await User.findById(userId).select('zipCode');
+  if (!user || !user.zipCode) {
+    return res
+      .status(404)
+      .json({ status: 'fail', message: 'User zip code not found' });
+  }
+
+  const data = await fuelInfoService.getAllfuelInfo(user.zipCode);
+
+  res.status(200).json({
+    status: 'success',
+    results: data.length,
+    data,
+  });
 });
 
 const getfuelInfoById = catchAsync(async (req: Request, res: Response) => {
