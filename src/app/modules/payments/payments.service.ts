@@ -84,7 +84,7 @@ const checkout = async (payload: IPayment) => {
     throw new AppError(httpStatus.NOT_FOUND, 'Order not found!');
   }
   const user = await User.findById(payload?.user);
-  const amount = order.finalAmountOfPayment;
+  const amount = order.amount;
 
   // Check for existing unpaid payment for the order
   const existingPayment: IPayment | null = await Payment.findOne({
