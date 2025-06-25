@@ -25,6 +25,8 @@ import { orderFuel } from '../orderFuel/orderFuel.models';
 import { Tip } from '../optionalTip/optionalTip.models';
 import { Withdraw } from '../withdraw/withdraw.models';
 import { PAYMENT_TYPE } from './payments.constants';
+import { CouponModel } from '../coupon/coupon.models';
+import dayjs from 'dayjs';
 
 const stripe = new Stripe(config.stripe?.stripe_api_secret as string, {
   apiVersion: '2024-06-20',
@@ -35,11 +37,44 @@ const checkout = async (payload: IPayment) => {
   const tranId = generateRandomString(10);
   let paymentData: IPayment;
 
+  if (payload?.couponCode) {
+    const order = await orderFuel.findById(payload?.orderFuelId);
+    if (!order) {
+      throw new AppError(httpStatus.NOT_FOUND, 'Order not found!');
+    }
+    const coupon = await CouponModel.findByCouponCode(payload?.couponCode);
+    if (!coupon) {
+      throw new AppError(httpStatus.NOT_FOUND, 'Coupon not found!');
+    }
+
+    const isExpired = dayjs().isAfter(dayjs(coupon.expiryDate));
+    if (isExpired) {
+      throw new AppError(httpStatus.BAD_REQUEST, 'Coupon has expired');
+    }
+
+    if (
+      (coupon.service as any) !== 'ALL' &&
+      order.orderType.toLowerCase() !== String(coupon.service).toLowerCase()
+    ) {
+      throw new AppError(
+        httpStatus.BAD_REQUEST,
+        `This coupon is not valid for ${order.orderType} service`,
+      );
+    }
+    const discountAmount = (order.price * coupon.discount) / 100;
+    await orderFuel.findByIdAndUpdate(
+      order._id,
+      {
+        $inc: { price: -discountAmount },
+        cuponCode: payload?.couponCode,
+      },
+      { new: true },
+    );
+  }
   const order = await orderFuel.findById(payload?.orderFuelId);
   if (!order) {
     throw new AppError(httpStatus.NOT_FOUND, 'Order not found!');
   }
-
   const user = await User.findById(payload?.user);
   const amount = order.finalAmountOfPayment;
 

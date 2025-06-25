@@ -5,12 +5,13 @@ import { IOrderFuel } from '../orderFuel/orderFuel.interface';
 import { ITip } from '../optionalTip/optionalTip.interface';
 
 export interface IPayment {
+  couponCode?: string;
   _id?: ObjectId;
   user: ObjectId | IUser;
   subscription: ObjectId | ISubscriptions;
   orderFuelId: ObjectId | IOrderFuel;
   paymentType: string; // 'subscription' | 'order' | 'tip'
-  status:"pending" | "paid" | "failed" | "refunded";
+  status: 'pending' | 'paid' | 'failed' | 'refunded';
   optionalTipId: ObjectId | ITip;
   amount: number;
   tranId: string;
