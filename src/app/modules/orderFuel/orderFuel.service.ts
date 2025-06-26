@@ -420,7 +420,9 @@ const getDeliveredorderFuel = async (query: Record<string, any>) => {
 
 // Get By ID
 const getorderFuelById = async (id: string) => {
-  const result = await orderFuel.findById(id).populate(['userId', 'driverId']);
+  const result = await orderFuel
+    .findById(id)
+    .populate(['userId', 'driverId', 'vehicleId']);
   if (!result) {
     throw new AppError(httpStatus.NOT_FOUND, 'Order not found');
   }
