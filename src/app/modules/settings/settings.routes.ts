@@ -10,7 +10,7 @@ const storage = memoryStorage();
 const upload = multer({ storage });
 
 settingsRoutes.get('/', settingsController.getSettingsData);
-settingsRoutes.put(
+settingsRoutes.patch(
   '/',
   auth(USER_ROLE.admin, USER_ROLE.sub_admin),
   upload.fields([
