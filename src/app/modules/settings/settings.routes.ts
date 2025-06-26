@@ -17,6 +17,8 @@ settingsRoutes.put(
     { name: 'banner', maxCount: 5 },
     { name: 'emergencyFuelBanner', maxCount: 1 },
     { name: 'discountBanner', maxCount: 1 },
+    { name: 'fuelTypeBanner', maxCount: 1 },
+    { name: 'orderHistoryBanner', maxCount: 1 },
   ]),
   parseData(),
   settingsController.updateSettingsData,

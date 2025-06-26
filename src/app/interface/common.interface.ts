@@ -3,6 +3,8 @@ export interface UploadedFiles {
   image?: Express.Multer.File[];
   banner?: Express.Multer.File[];
   discountBanner?: Express.Multer.File[];
+  orderHistoryBanner?: Express.Multer.File[];
+  fuelTypeBanner?: Express.Multer.File[];
   emergencyFuelBanner?: Express.Multer.File[];
   images?: Express.Multer.File[];
   frontSide?: Express.Multer.File[];

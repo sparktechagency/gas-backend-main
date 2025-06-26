@@ -10,6 +10,14 @@ const settingsSchema = new Schema<TSettings>(
       type: String,
       default: null,
     },
+    fuelTypeBanner: {
+      type: String,
+      default: null,
+    },
+    orderHistoryBanner: {
+      type: String,
+      default: null,
+    },
     discountBanner: {
       type: String,
       default: null,

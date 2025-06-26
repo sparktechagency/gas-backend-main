@@ -4,4 +4,6 @@ export type TSettings = {
   privacy_policy: string; // Required string
   discountBanner?: string;
   emergencyFuelBanner?: string;
+  fuelTypeBanner?: string;
+  orderHistoryBanner?: string;
 };
