@@ -5,18 +5,26 @@ import app from './app';
 import config from './app/config';
 import initializeSocketIO from './socket';
 import { defaultTask } from './app/utils/defaultTask';
+import { consumeLocation, setSocketServer } from './kafka/consumber';
+import { producer } from './kafka/producer';
 //@ts-ignore
 // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-unused-vars
 const colors = require('colors');
 
 let server: Server;
 export const io = initializeSocketIO(createServer(app));
-// export const io = initializeSocketIO(createServer(app));
+
+setSocketServer(io); 
+
 
 async function main() {
   try {
     await mongoose.connect(config.database_url as string);
     defaultTask();
+    await producer.connect();
+  await consumeLocation();
+
+
     server = app.listen(Number(config.port), config.ip as string, () => {
       //@ts-ignore
       console.log(`app is listening on ${config.ip}:${config.port}`.green.bold);
@@ -29,7 +37,7 @@ async function main() {
     );
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    //@ts-ignore
+    //@ts-ignore 
     global.socketio = io;
   } catch (err) {
     console.error(err);

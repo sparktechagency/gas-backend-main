@@ -1,19 +1,29 @@
 import { Server as HttpServer } from 'http';
 import { Server } from 'socket.io';
 import getUserDetailsFromToken from './app/helpers/getUserDetailsFromToken';
-import AppError from './app/error/AppError';
-import httpStatus from 'http-status';
-import { Schema, Types } from 'mongoose';
+import AppError from './app/error/AppError'; 
+import { Types } from 'mongoose';
 import { IUser } from './app/modules/user/user.interface';
 import { User } from './app/modules/user/user.models';
 import Message from './app/modules/messages/messages.models';
 import { chatService } from './app/modules/chat/chat.service';
 import { IChat } from './app/modules/chat/chat.interface';
-import Chat from './app/modules/chat/chat.models';
-// import { callbackFn } from './app/utils/CallbackFn';
-import * as socket from './socket';
+import Chat from './app/modules/chat/chat.models';  
 import { callbackFn } from './app/utils/callbackFn';
 import { messagesService } from './app/modules/messages/messages.service';
+import { sendLocationToKafka } from './kafka/producer';
+
+// const setUserId = new Map<string, string>()
+// const setSocketId = new Map<string, string>()
+
+// function getSocketId(userid:string){
+//   setSocketId.get(userid)
+// }
+
+// function getUserId(socketid:string){
+//   setUserId.get(socketid)
+// }
+
 
 const initializeSocketIO = (server: HttpServer) => {
   const io = new Server(server, {
@@ -25,7 +35,7 @@ const initializeSocketIO = (server: HttpServer) => {
   // Online users
   const onlineUser = new Set();
 
-  io.on('connection', async socket => {
+  io.on('connection', async socket => { 
     console.log('connected', socket?.id);
 
     try {
@@ -38,10 +48,15 @@ const initializeSocketIO = (server: HttpServer) => {
       const user: any = await getUserDetailsFromToken(token);
       if (!user) {
         // io.emit('io-error', {success:false, message:'invalid Token'});
-        throw new AppError(httpStatus.UNAUTHORIZED, 'Invalid token');
+        throw new AppError(400, 'Invalid token');
       }
 
       socket.join(user?._id?.toString());
+      // if(socket?.id && user?._id){
+      //   setSocketId.set(user?._id, socket?.id)
+      //   setUserId.set(socket?.id, user?._id)
+  
+      // }
 
       //----------------------user id set in online array-------------------------//
       onlineUser.add(user?._id?.toString());
@@ -54,6 +69,17 @@ const initializeSocketIO = (server: HttpServer) => {
 
       //----------------------online array send for front end------------------------//
       io.emit('onlineUser', Array.from(onlineUser));
+
+      //-------------------------------Join Order Room -----------------------------//
+      socket.on('joinOrderRoom', (orderId: string) => {
+        const room = `order-room::${orderId}`;
+        socket.join(room);
+        console.log(`📍 Order joined room: ${room}`);
+      });
+ //-------------------------------get location -----------------------------//
+ socket.on('getLocation', async (data, cb) => {
+  await sendLocationToKafka(data.orderId, data.latitude, data.longitude);
+});
 
       //----------------------user details and messages send for front end -->(as need to use)------------------------//
       socket.on('message-page', async (userId, callback) => {
@@ -136,17 +162,9 @@ const initializeSocketIO = (server: HttpServer) => {
       socket.on(
         'getLocation',
         async (
-          messageData: { latitude: number; longitude: number },
+          data: { latitude: number; longitude: number, orderId:string},
           callback: any,
-        ) => {
-          try {
-            const data = messageData;
-            const key = 'serverToSendLocation::' + user._id?.toString();
-            return io.emit(key, data);
-          } catch (error: any) {
-            console.log('🚀 ~ error:', error);
-          }
-        },
+        ) => await sendLocationToKafka(data.orderId, data.latitude, data.longitude)
       );
       //----------------------chat list------------------------//
       socket.on('my-chat-list', async (data, callback) => {
@@ -167,7 +185,7 @@ const initializeSocketIO = (server: HttpServer) => {
       });
 
       //----------------------seen message-----------------------//
-      socket.on('seen', async ({ chatId }, callback) => {
+      socket.on('seen', async ({ chatId }:{chatId:string}, callback) => {
         if (!chatId) {
           callbackFn(callback, {
             success: false,
@@ -190,7 +208,7 @@ const initializeSocketIO = (server: HttpServer) => {
               success: false,
               message: 'chat id is not valid',
             });
-            throw new AppError(httpStatus.BAD_REQUEST, 'chat id is not valid');
+            throw new AppError(400, 'chat id is not valid');
           }
 
           const messageIdList = await Message.aggregate([
@@ -283,7 +301,7 @@ const initializeSocketIO = (server: HttpServer) => {
 
         if (!result) {
           callbackFn(callback, {
-            statusCode: httpStatus.BAD_REQUEST,
+            statusCode: 400,
             success: false,
             message: 'Message sent failed',
           });
@@ -326,7 +344,7 @@ const initializeSocketIO = (server: HttpServer) => {
         io.emit(vars, data);
         //end Notification//
         callbackFn(callback, {
-          statusCode: httpStatus.OK,
+          statusCode: 200,
           success: true,
           message: 'Message sent successfully!',
           data: result,
@@ -357,7 +375,7 @@ const initializeSocketIO = (server: HttpServer) => {
           callbackFn(callback, { success: true, message: allUnReaddMessage });
         } catch (error) {
           callbackFn(callback, {
-            statusCode: httpStatus.INTERNAL_SERVER_ERROR,
+            statusCode: 400,
             success: false,
             message: 'Failed to retrieve notifications',
           });
