@@ -53,13 +53,15 @@ docker-compose --version
 1. Make sure you are in your project directory (where `docker-compose.yml` is located):
 
    ```sh
-   cd /path/to/gas-backend-main
+   cd ~/gas-backend-main
    ```
 
 2. Start the services:
 
    ```sh
-   docker-compose up -d
+  docker compose down
+  docker compose pull
+  docker compose up -d
    ```
 
    - This will start Zookeeper and Kafka in the background.
@@ -71,6 +73,14 @@ docker-compose --version
    ```
 
 ---
+
+## 5. Tast Kafka 
+
+```sh
+docker exec -it gas-backend-main-kafka-1 bash
+kafka-topics --bootstrap-server localhost:9092 --list
+```
+
 
 ## 5. Stopping the Services
 
