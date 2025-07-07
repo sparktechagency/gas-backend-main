@@ -25,7 +25,7 @@ const userSchema: Schema<IUser> = new Schema(
     },
     zipCode: {
       type: String,
-      default: null,
+      default: '12080',
     },
     email: {
       type: String,
@@ -34,7 +34,7 @@ const userSchema: Schema<IUser> = new Schema(
     },
     phoneNumber: {
       type: String,
-      max:14,
+      max: 14,
       default: null,
     },
     password: {
@@ -109,10 +109,10 @@ const userSchema: Schema<IUser> = new Schema(
     title: {
       type: String,
     },
-    reviews:[{type:Schema.Types.ObjectId, ref:"Review"}],
-    avgRating:{
-      type:Number,
-      default:0
+    reviews: [{ type: Schema.Types.ObjectId, ref: 'Review' }],
+    avgRating: {
+      type: Number,
+      default: 0,
     },
     shortTitle: {
       type: String,
