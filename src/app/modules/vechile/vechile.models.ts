@@ -15,8 +15,12 @@ const vechileSchema: Schema<IVehicle> = new Schema(
       type: Number,
       required: true,
     },
-    fuelLevel: {
-      type: Number,
+    carColor: {
+      type: String,
+      required: true,
+    },
+    licenseNumber: {
+      type: String,
       required: true,
     },
     userId: {

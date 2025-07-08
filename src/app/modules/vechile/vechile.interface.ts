@@ -6,7 +6,8 @@ export interface IVehicle {
   make: string;
   model: string;
   year: number;
-  fuelLevel: number;
+  carColor: string;
+  licenseNumber: string;
   userId: ObjectId;
   isCoveredBySubscription: boolean;
 }
