@@ -17,7 +17,10 @@ const consumer = kafka.consumer({ groupId: 'order-group' });
 
 export const consumeLocation = async () => {
   await consumer.connect();
-  await consumer.subscribe({ topic: 'deliveryman-location', fromBeginning: false });
+  await consumer.subscribe({
+    topic: 'deliveryman-location',
+    fromBeginning: false,
+  });
 
   await consumer.run({
     eachMessage: async ({ message }) => {

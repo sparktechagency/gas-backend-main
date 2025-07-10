@@ -88,6 +88,7 @@ const orderFuelSchema: Schema<IOrderFuel> = new Schema(
     },
     servicesFee: {
       type: Number,
+      default: 0,
     },
     driverId: {
       type: Schema.Types.ObjectId,

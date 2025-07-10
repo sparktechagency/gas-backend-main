@@ -262,20 +262,22 @@ const createorderFuel = async (payload: IOrderFuel) => {
   });
   const deliveryFee = deliveryDoc?.price ?? 0;
 
-  const tipDoc = await DeliveryAndTipModel.findOne({
-    zipCode: { $all: [zipCode] },
-  });
-  const tip = tipDoc?.price ?? 0;
+  // const tipDoc = await DeliveryAndTipModel.findOne({
+  //   zipCode: { $all: [zipCode] },
+  // });
+  // const tip = tipDoc?.price ?? 0;
 
   // Step 5: Calculate base total
-  const service = await Services.findOne({ serviceName: 'Battery' });
-  const servicesFee = service?.price ?? 0;
+  const service = await Services.findOne({ status: true });
+ 
+  const servicesFee = service?.price || 0; 
 
   let finalAmountOfPayment =
     payload.orderType === 'Battery'
-      ? servicesFee + deliveryFee + tip
-      : price + deliveryFee + tip;
+      ? servicesFee + deliveryFee 
+      : price + deliveryFee ;
 
+  
   // Step 5.1: Subscriber benefits
   if (isSubscriber && user.fiftyPercentOffDeliveryFeeAfterWaivedTrips) {
     finalAmountOfPayment -= deliveryFee * 0.5;
@@ -328,11 +330,10 @@ const createorderFuel = async (payload: IOrderFuel) => {
   const result = await orderFuel.create({
     ...payload,
     price,
-    deliveryFee,
-    tip,
+    deliveryFee, 
     servicesFee,
     finalAmountOfPayment,
-  });
+  }); 
 
   if (!result) {
     throw new AppError(httpStatus.BAD_REQUEST, 'Failed to create order');
