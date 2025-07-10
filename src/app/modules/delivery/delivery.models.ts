@@ -1,5 +1,5 @@
 import { Schema, model } from 'mongoose';
-import { Idelivery } from './delivery.interface';
+import { Idelivery, IDeliveryModel } from './delivery.interface';
 
 const deliverySchema: Schema<Idelivery> = new Schema(
   {
@@ -29,4 +29,10 @@ const deliverySchema: Schema<Idelivery> = new Schema(
   },
 );
 
-export const Delivery = model<Idelivery>('Delivery', deliverySchema);
+deliverySchema.statics.getByOrderId = async (orderId: string) => {
+  return await Delivery.findOne({ orderId });
+};
+export const Delivery = model<Idelivery, IDeliveryModel>(
+  'Delivery',
+  deliverySchema,
+);

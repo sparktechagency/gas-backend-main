@@ -17,6 +17,7 @@ import { CouponModel } from '../coupon/coupon.models';
 import { notificationServices } from '../notification/notification.service';
 import { modeType } from '../notification/notification.interface';
 import { CityExpansion } from '../cityExpansion/cityExpansion.models';
+import { Delivery } from '../delivery/delivery.models';
 
 const MILES_TO_METERS = 1609.34;
 
@@ -269,15 +270,14 @@ const createorderFuel = async (payload: IOrderFuel) => {
 
   // Step 5: Calculate base total
   const service = await Services.findOne({ status: true });
- 
-  const servicesFee = service?.price || 0; 
+
+  const servicesFee = service?.price || 0;
 
   let finalAmountOfPayment =
     payload.orderType === 'Battery'
-      ? servicesFee + deliveryFee 
-      : price + deliveryFee ;
+      ? servicesFee + deliveryFee
+      : price + deliveryFee;
 
-  
   // Step 5.1: Subscriber benefits
   if (isSubscriber && user.fiftyPercentOffDeliveryFeeAfterWaivedTrips) {
     finalAmountOfPayment -= deliveryFee * 0.5;
@@ -330,10 +330,10 @@ const createorderFuel = async (payload: IOrderFuel) => {
   const result = await orderFuel.create({
     ...payload,
     price,
-    deliveryFee, 
+    deliveryFee,
     servicesFee,
     finalAmountOfPayment,
-  }); 
+  });
 
   if (!result) {
     throw new AppError(httpStatus.BAD_REQUEST, 'Failed to create order');
@@ -427,7 +427,10 @@ const getorderFuelById = async (id: string) => {
   if (!result) {
     throw new AppError(httpStatus.NOT_FOUND, 'Order not found');
   }
-  return result;
+
+  const deliveryStatus = await Delivery.getByOrderId(result?._id?.toString());
+
+  return { ...result?.toObject(), deliveryInfo: deliveryStatus };
 };
 
 const getorderFuelByDriverId = async (
