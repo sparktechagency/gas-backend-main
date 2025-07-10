@@ -5,6 +5,7 @@ import {
   DeliveryAndTipDocument,
   DeliveryAndTipModel,
 } from './deliveryAndTip.models';
+import AppError from '../../error/AppError';
 
 const createDeliveryAndTip = async (
   payload: IDeliveryAndTip,
@@ -37,8 +38,13 @@ const updateDeliveryAndTip = async (
 const deleteDeliveryAndTip = async (
   id: string,
 ): Promise<DeliveryAndTipDocument | null> => {
-  if (!Types.ObjectId.isValid(id)) return null;
-  return DeliveryAndTipModel.findByIdAndDelete(id);
+  const data = await DeliveryAndTipModel.findByIdAndDelete(id);
+  if (!data)
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      'delivery and tip deletion failed!',
+    );
+  return data;
 };
 
 export const deliveryAndTipService = {

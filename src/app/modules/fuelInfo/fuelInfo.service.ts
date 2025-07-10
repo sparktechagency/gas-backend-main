@@ -2,6 +2,8 @@
 import { Types } from 'mongoose';
 import { IFuelInfo } from './fuelInfo.interface';
 import { FuelInfoDocument, FuelInfoModel } from './fuelInfo.models';
+import AppError from '../../error/AppError';
+import { http } from 'winston';
 
 const createfuelInfo = async (
   payload: IFuelInfo,
@@ -38,8 +40,10 @@ const updatefuelInfo = async (
 };
 
 const deletefuelInfo = async (id: string): Promise<FuelInfoDocument | null> => {
-  if (!Types.ObjectId.isValid(id)) return null;
-  return FuelInfoModel.findByIdAndDelete(id);
+  const data = await FuelInfoModel.findByIdAndDelete(id);
+  if (!data)
+    throw new AppError(httpStatus.BAD_REQUEST, 'fuel info deletion failed');
+  return data;
 };
 
 export const fuelInfoService = {
