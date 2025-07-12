@@ -1,25 +1,22 @@
 // src/modules/deliveryAndTip/deliveryAndTip.service.ts
 import { Types } from 'mongoose';
 import { IDeliveryAndTip } from './deliveryAndTip.interface';
-import {
-  DeliveryAndTipDocument,
-  DeliveryAndTipModel,
-} from './deliveryAndTip.models';
+import { DeliveryAndTipModel } from './deliveryAndTip.models';
 import AppError from '../../error/AppError';
 
 const createDeliveryAndTip = async (
   payload: IDeliveryAndTip,
-): Promise<DeliveryAndTipDocument> => {
+): Promise<IDeliveryAndTip> => {
   return DeliveryAndTipModel.create(payload);
 };
 
-const getAllDeliveryAndTip = async (): Promise<DeliveryAndTipDocument[]> => {
+const getAllDeliveryAndTip = async (): Promise<IDeliveryAndTip[]> => {
   return DeliveryAndTipModel.find().sort({ createdAt: -1 });
 };
 
 const getDeliveryAndTipById = async (
   id: string,
-): Promise<DeliveryAndTipDocument | null> => {
+): Promise<IDeliveryAndTip | null> => {
   if (!Types.ObjectId.isValid(id)) return null;
   return DeliveryAndTipModel.findById(id);
 };
@@ -27,7 +24,7 @@ const getDeliveryAndTipById = async (
 const updateDeliveryAndTip = async (
   id: string,
   payload: Partial<IDeliveryAndTip>,
-): Promise<DeliveryAndTipDocument | null> => {
+): Promise<IDeliveryAndTip | null> => {
   if (!Types.ObjectId.isValid(id)) return null;
   return DeliveryAndTipModel.findByIdAndUpdate(id, payload, {
     new: true,
@@ -37,7 +34,7 @@ const updateDeliveryAndTip = async (
 
 const deleteDeliveryAndTip = async (
   id: string,
-): Promise<DeliveryAndTipDocument | null> => {
+): Promise<IDeliveryAndTip | null> => {
   const data = await DeliveryAndTipModel.findByIdAndDelete(id);
   if (!data)
     throw new AppError(
